@@ -219,8 +219,11 @@ void Robot::resetIdleTime(){
 void Robot::beep(int numberOfBeeps, boolean shortbeep = false){
   for (int i=0; i < numberOfBeeps; i++){
     setActuator(ACT_BUZZER, 4200); 
+
     if (shortbeep) delay(50);
       else delay(500);
+
+
     setActuator(ACT_BUZZER, 0); 
     if (shortbeep) delay(250);
       else delay(500);
@@ -392,8 +395,16 @@ void Robot::readSensors(){
       perimeterLastTransitionTime = millis();
       perimeterInside = perimeter.isInside(0);
     }    
-    if (perimeterInside < 0) setActuator(ACT_LED, HIGH);                     
-      else setActuator(ACT_LED, LOW);    
+	static boolean LEDstate = false;
+    if (perimeterInside && !LEDstate) {
+		
+			setActuator(ACT_LED, HIGH);
+			LEDstate = true;
+	}
+    if (!perimeterInside && LEDstate) {
+		setActuator(ACT_LED, LOW);
+        LEDstate = false;
+	}
     if ((!perimeterInside) && (perimeterTriggerTime == 0)){
       // set perimeter trigger time      
       if (millis() > stateStartTime + 2000){ // far away from perimeter?
