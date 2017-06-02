@@ -714,7 +714,7 @@ void Robot::checkCurrent(){
     } else if ((stateCurr == STATE_ROLL) && (millis() > stateStartTime + motorPowerIgnoreTime)){
       motorLeftSenseCounter++;
       setMotorPWM( 0, 0, false );  
-      setNextState(STATE_FORWARD, 0);
+      setNextState(STATE_FORWARD, rollDir);
     }    
   }
   else if (motorRightSense >= motorPowerMax){       
@@ -731,7 +731,7 @@ void Robot::checkCurrent(){
      } else if ((stateCurr == STATE_ROLL) && (millis() > stateStartTime + motorPowerIgnoreTime)){
        motorRightSenseCounter++;
        setMotorPWM( 0, 0, false );  
-       setNextState(STATE_FORWARD, 0);
+       setNextState(STATE_FORWARD, rollDir);
     }
   }
 }  
