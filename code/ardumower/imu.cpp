@@ -156,7 +156,7 @@ void IMU::loadCalib(){
   int addr = ADDR;
   eeread(addr, magic);
   if (magic != MAGIC) {
-    Console.println(F("IMU error: no calib data"));
+    Debug.println(F("IMU error: no calib data"));
     return;  
   }
   calibrationAvail = true;
@@ -296,7 +296,7 @@ boolean IMU::initL3G4200D(){
   while (true){
     I2CreadFrom(L3G4200D, 0x0F, 1, (uint8_t*)buf);
     if (buf[0] != 0xD3) {        
-      Console.println(F("gyro read error"));
+      Debug.println(F("gyro read error"));
       retry++;
       if (retry > 2){
         errorCounter++;
@@ -311,7 +311,7 @@ boolean IMU::initL3G4200D(){
   I2CwriteTo(L3G4200D, 0x23, 0b00100000);      
   I2CreadFrom(L3G4200D, 0x23, 1, (uint8_t*)buf);
   if (buf[0] != 0b00100000){
-      Console.println(F("gyro write error")); 
+      Debug.println(F("gyro write error")); 
       while(true);
   }  
   // fifo mode 

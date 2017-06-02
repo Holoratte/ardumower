@@ -313,7 +313,7 @@ void RemoteControl::sendMotorMenu(boolean update){
   switch (testmode){
     case 0: serialPort->print(F("OFF")); break;
     case 1: serialPort->print(F("Left motor forw")); break;
-    case 2: serialPort->print(F("Right motor forw")); break;
+    case 2: serialPort->println(F("Right motor forw")); break;
   }
   
   //bb add
@@ -677,7 +677,9 @@ void RemoteControl::sendBatteryMenu(boolean update){
   if (update) serialPort->print("{:"); else serialPort->print(F("{.Battery`1000"));
   serialPort->print(F("|j00~Battery "));
   serialPort->print(robot->batVoltage);
-  serialPort->print(" V");
+  serialPort->print(" V ");
+  serialPort->print(robot->batTemperature);
+  serialPort->print(" °C");
   serialPort->print(F("|j01~Monitor "));
   sendYesNo(robot->batMonitor);
   
@@ -1219,7 +1221,9 @@ void RemoteControl::run(){
       serialPort->print(",");
       serialPort->print(robot->chgCurrent);
       serialPort->print(",");
-      serialPort->println(robot->batCapacity);
+      serialPort->print(robot->batCapacity);
+      serialPort->print(",");
+      serialPort->println(robot->batTemperature);
     }
   } else if (pfodState == PFOD_PLOT_ODO2D){
     if (millis() >= nextPlotTime){
@@ -1428,7 +1432,7 @@ bool RemoteControl::readSerial(){
         }  
         else if (pfodCmd == "y1") {
           // plot battery
-          serialPort->println(F("{=battery'300|time min`0|battery V`1|charge V`1|charge A`2|capacity Ah`3}"));
+          serialPort->println(F("{=battery'300|time min`0|battery V`1|charge V`1|charge A`2|capacity Ah`3|temp degC`4}"));
           nextPlotTime = 0;
           pfodState = PFOD_PLOT_BAT;
         }

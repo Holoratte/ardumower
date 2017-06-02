@@ -579,6 +579,7 @@ int Mower::readSensor(char type){
 // battery------------------------------------------------------------------------------------------------
     case SEN_BAT_VOLTAGE: return ADCMan.read(pinBatteryVoltage); break;
     case SEN_CHG_VOLTAGE: return ADCMan.read(pinChargeVoltage); break;
+    case SEN_BAT_TEMPERATURE: return ADCMan.read(pinVoltageMeasurement); break;
     //case SEN_CHG_VOLTAGE: return((int)(((double)analogRead(pinChargeVoltage)) * batFactor)); break;
     case SEN_CHG_CURRENT: return ADCMan.read(pinChargeCurrent); break;
     

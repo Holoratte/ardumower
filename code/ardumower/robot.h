@@ -68,6 +68,7 @@ enum {
   SEN_PERIM_RIGHT_EXTRA, // 0..MAX_PERIMETER
   SEN_LAWN_FRONT,        
   SEN_LAWN_BACK,         
+  SEN_BAT_TEMPERATURE,   // Volt * 10
   SEN_BAT_VOLTAGE,       // Volt * 100
   SEN_CHG_CURRENT,       // Ampere * 100
   SEN_CHG_VOLTAGE,       // Volt * 100
@@ -431,11 +432,13 @@ class Robot
     float startChargingIfBelow; // start charging if battery Voltage is below
     unsigned long chargingTimeout; // safety timer for charging
     int batADC;
+    int batTempADC;
     float chgSenseZero    ;       // charge current sense zero point
     float chgFactor       ;     // charge current conversion factor
     float chgSense        ;       // mV/A empfindlichkeit des Ladestromsensors in mV/A (Für ACS712 5A = 185)
     char chgChange        ;       // messwertumkehr von - nach +         1oder 0
     float batVoltage ;  // battery voltage (Volt)
+    float batTemperature ;
     byte chgSelection     ;       // Senor Auswahl
     float batRefFactor ;
     float batCapacity ; // battery capacity (mAh)

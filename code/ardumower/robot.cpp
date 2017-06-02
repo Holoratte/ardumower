@@ -145,6 +145,7 @@ Robot::Robot(){
   sonarLeftUse = sonarRightUse = sonarCenterUse = false;
   sonarDistCenter = sonarDistRight = sonarDistLeft = 0;
   sonarDistCounter = 0;
+  batTempADC = 0;
   tempSonarDistCounter = 0;
   sonarObstacleTimeout = 0;  
 
@@ -220,12 +221,12 @@ void Robot::resetIdleTime(){
 void Robot::beep(int numberOfBeeps, boolean shortbeep = false){
   for (int i=0; i < numberOfBeeps; i++){
     setActuator(ACT_BUZZER, 4200); 
+    setActuator(ACT_USER_SW1, 1); 
 
     if (shortbeep) delay(50);
       else delay(500);
-
-
-    setActuator(ACT_BUZZER, 0); 
+    setActuator(ACT_BUZZER, 0);
+    setActuator(ACT_USER_SW1, 0); 
     if (shortbeep) delay(250);
       else delay(500);
   }
@@ -553,6 +554,8 @@ void Robot::readSensors(){
     }
     // convert to double  
     batADC = readSensor(SEN_BAT_VOLTAGE);
+    batTempADC = readSensor(SEN_BAT_TEMPERATURE);
+    double battemp = ((double)batTempADC / 2.048) - 2;
     double batvolt = (double)batADC * batFactor / 10;  // / 10 due to arduremote bug, can be removed after fixing
     //double chgvolt = ((double)((int)(readSensor(SEN_CHG_VOLTAGE) / 10))) / 10.0;  
     int chgADC = readSensor(SEN_CHG_VOLTAGE);
@@ -570,6 +573,7 @@ void Robot::readSensors(){
     //batVoltage = batVolt
     //chgVoltage = chgvolt;
     //chgCurrent = current;        
+    batTemperature = battemp;
   } 
 
   if ((rainUse) && (millis() >= nextTimeRain)) {
