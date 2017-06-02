@@ -228,12 +228,12 @@ void Robot::motorControlPerimeter(){
   if ((millis() > stateStartTime + 5000) && (millis() > perimeterLastTransitionTime + trackingPerimeterTransitionTimeOut)){
     // robot is wheel-spinning while tracking => roll to get ground again
     if (trackingBlockInnerWheelWhilePerimeterStruggling == 0){
-    if (perimeterInside) setMotorPWM( -motorSpeedMaxPwm/1.5, motorSpeedMaxPwm/1.5, false);
-        else setMotorPWM( motorSpeedMaxPwm/1.5, -motorSpeedMaxPwm/1.5, false);}
+    if (perimeterInside) setMotorPWM( -motorSpeedMaxPwm/2, motorSpeedMaxPwm/2, false);
+        else setMotorPWM( motorSpeedMaxPwm/2, -motorSpeedMaxPwm/2, false);}
 
     else if (trackingBlockInnerWheelWhilePerimeterStruggling == 1){
-      if (perimeterInside) setMotorPWM( 0, motorSpeedMaxPwm/1.5, false);
-        else setMotorPWM( motorSpeedMaxPwm/1.5, 0, false);
+      if (perimeterInside) setMotorPWM( motorSpeedMaxPwm/6, motorSpeedMaxPwm/2, false);
+        else setMotorPWM( motorSpeedMaxPwm/2, motorSpeedMaxPwm/6, false);
     }
 
     if (millis() > perimeterLastTransitionTime + trackingErrorTimeOut){      
@@ -250,14 +250,14 @@ void Robot::motorControlPerimeter(){
       perimeterPID.x = 1;
 
   perimeterPID.w = 0;
-  perimeterPID.y_min = -motorSpeedMaxPwm;
-  perimeterPID.y_max = motorSpeedMaxPwm;		
-  perimeterPID.max_output = motorSpeedMaxPwm;
+  perimeterPID.y_min = -motorSpeedMaxPwm/1.5;
+  perimeterPID.y_max = motorSpeedMaxPwm/1.5;		
+  perimeterPID.max_output = motorSpeedMaxPwm/1.5;
   perimeterPID.compute();
   //setMotorPWM( motorLeftPWMCurr  +perimeterPID.y, 
   //               motorRightPWMCurr -perimeterPID.y, false);      
-  setMotorPWM( max(-motorSpeedMaxPwm, min(motorSpeedMaxPwm, motorSpeedMaxPwm/2 - perimeterPID.y)), 
-                 max(-motorSpeedMaxPwm, min(motorSpeedMaxPwm, motorSpeedMaxPwm/2 + perimeterPID.y)), false);      
+  setMotorPWM( max(-motorSpeedMaxPwm/1.5, min(motorSpeedMaxPwm/1.5, motorSpeedMaxPwm/2.3 - perimeterPID.y)), 
+                 max(-motorSpeedMaxPwm/1.5, min(motorSpeedMaxPwm/1.5, motorSpeedMaxPwm/2.3 + perimeterPID.y)), false);      
   /*Console.print(perimeterPID.x);
   Console.print("\t");          
   Console.println(perimeterPID.y);  */
