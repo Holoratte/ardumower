@@ -453,19 +453,31 @@ void Robot::readSensors(){
 
  if ((sonarUse) && (millis() >= nextTimeSonar)){
     static char senSonarTurn = SEN_SONAR_RIGHT;    
-    nextTimeSonar = millis() + 80;
+    nextTimeSonar = millis() + 30;
     
     switch(senSonarTurn) {
       case SEN_SONAR_RIGHT:
-        if (sonarRightUse) sonarDistRight = readSensor(SEN_SONAR_RIGHT);
+        if (sonarRightUse) {
+			sonarDistRight = readSensor(SEN_SONAR_RIGHT);
+			if (sonarDistRight >= 2) sonarDistRightMedian.add(sonarDistRight);
+			if ((sonarDistRightMedian.getCount() >= 3) && (sonarDistRight > 0)) sonarDistRight = sonarDistRightMedian.getMedian();
+		}
         senSonarTurn = SEN_SONAR_LEFT;
         break;
       case SEN_SONAR_LEFT:
-        if (sonarLeftUse) sonarDistLeft = readSensor(SEN_SONAR_LEFT);
+        if (sonarLeftUse){
+			sonarDistLeft = readSensor(SEN_SONAR_LEFT);
+			if (sonarDistLeft >= 2) sonarDistLeftMedian.add(sonarDistLeft);
+			if ((sonarDistLeftMedian.getCount() >= 3) && (sonarDistLeft > 0)) sonarDistLeft = sonarDistLeftMedian.getMedian();
+		}
         senSonarTurn = SEN_SONAR_CENTER;
         break;
       case SEN_SONAR_CENTER:
-        if (sonarCenterUse) sonarDistCenter = readSensor(SEN_SONAR_CENTER);
+        if (sonarCenterUse) {
+			sonarDistCenter = readSensor(SEN_SONAR_CENTER);
+			if (sonarDistCenter >= 2) sonarDistCenterMedian.add(sonarDistCenter);
+			if ((sonarDistCenterMedian.getCount() >= 3) && (sonarDistCenter > 0)) sonarDistCenter = sonarDistCenterMedian.getMedian();
+		}
         senSonarTurn = SEN_SONAR_RIGHT;
         break;
       default:
@@ -848,7 +860,7 @@ void Robot::checkRain(){
 void Robot::checkSonar(){
   if(!sonarUse) return;
   if (millis() < nextTimeCheckSonar) return;
-  nextTimeCheckSonar = millis() + 200;
+  nextTimeCheckSonar = millis() + 100;
   if ((mowPatternCurr == MOW_BIDIR) && (millis() < stateStartTime + 4000)) return;
 
   // slow down motor wheel speed near obstacles   
@@ -860,7 +872,7 @@ void Robot::checkSonar(){
                ||  ((NO_ECHO != sonarDistRight) && (sonarDistRight < sonarSlowBelow)) 
                ||  ((NO_ECHO != sonarDistLeft) && (sonarDistLeft < sonarSlowBelow))  ) {    
               tempSonarDistCounter++;
-            if (tempSonarDistCounter >= 5){
+            if (tempSonarDistCounter >= 0){
              // Console.println("sonar slow down");
               motorLeftSpeedRpmSet /= 1.5;
               motorRightSpeedRpmSet /= 1.5;

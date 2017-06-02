@@ -43,7 +43,7 @@
 #include "perimeter.h"
 #include "gps.h"
 #include "pfod.h"
-
+#include "RunningMedian.h"
 
 //#include "QueueList.h"
 //#include <limits.h>
@@ -68,7 +68,6 @@ enum {
   SEN_PERIM_RIGHT_EXTRA, // 0..MAX_PERIMETER
   SEN_LAWN_FRONT,        
   SEN_LAWN_BACK,         
-
   SEN_BAT_VOLTAGE,       // Volt * 100
   SEN_CHG_CURRENT,       // Ampere * 100
   SEN_CHG_VOLTAGE,       // Volt * 100
@@ -168,8 +167,6 @@ enum { MOW_RANDOM, MOW_LANES, MOW_BIDIR };
 
 // console mode
 enum { CONSOLE_SENSOR_COUNTERS, CONSOLE_SENSOR_VALUES, CONSOLE_PERIMETER, CONSOLE_OFF };
-
-
 
 
 #define MAX_TIMERS 5
@@ -400,13 +397,13 @@ class Robot
     char sonarRightUse;
     char sonarCenterUse;
     int sonarTriggerBelow ;    // ultrasonic sensor trigger distance
-	int sonarSlowBelow ;    
+    int sonarSlowBelow ;    
     unsigned int sonarDistCenter ;
     unsigned int sonarDistRight ;
     unsigned int sonarDistLeft ; 
-
-
-
+    RunningMedian sonarDistCenterMedian = RunningMedian(7);
+    RunningMedian sonarDistRightMedian = RunningMedian(7);
+    RunningMedian sonarDistLeftMedian = RunningMedian(7);
     unsigned int sonarDistCounter ;
     unsigned int tempSonarDistCounter ;
     unsigned long sonarObstacleTimeout ;
@@ -434,13 +431,11 @@ class Robot
     float startChargingIfBelow; // start charging if battery Voltage is below
     unsigned long chargingTimeout; // safety timer for charging
     int batADC;
-
     float chgSenseZero    ;       // charge current sense zero point
     float chgFactor       ;     // charge current conversion factor
     float chgSense        ;       // mV/A empfindlichkeit des Ladestromsensors in mV/A (Für ACS712 5A = 185)
     char chgChange        ;       // messwertumkehr von - nach +         1oder 0
     float batVoltage ;  // battery voltage (Volt)
-
     byte chgSelection     ;       // Senor Auswahl
     float batRefFactor ;
     float batCapacity ; // battery capacity (mAh)
