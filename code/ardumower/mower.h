@@ -140,6 +140,7 @@
   #define Console Serial
   #define ESP8266port Serial1
   #define Bluetooth Serial2
+  #define Debug Console
 #else 
   // Arduino Due  
    // Due has two serial ports: Native (SerialUSB) and Programming (Serial) - we want to use 'SerialUSB' for 'Console'

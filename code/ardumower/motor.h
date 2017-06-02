@@ -237,7 +237,7 @@ void Robot::motorControlPerimeter(){
     }
 
     if (millis() > perimeterLastTransitionTime + trackingErrorTimeOut){      
-      Console.println("Error: tracking error");
+      Debug.println("Error: tracking error");
       addErrorCounter(ERR_TRACKING);
       //setNextState(STATE_ERROR,0);
       setNextState(STATE_PERI_FIND,0);
@@ -332,18 +332,18 @@ void Robot::checkOdometryFaults(){
     if ( ((motorRightPWMCurr > 100) && (motorRightRpmCurr < -3)) || ((motorRightPWMCurr < -100) && (motorRightRpmCurr > 3)) ) rightErr = true;
   }  
   if (leftErr){
-    Console.print("Left odometry error: PWM=");
-    Console.print(motorLeftPWMCurr);
-    Console.print("\tRPM=");
-    Console.println(motorLeftRpmCurr);
+    Debug.print("Left odometry error: PWM=");
+    Debug.print(motorLeftPWMCurr);
+    Debug.print("\tRPM=");
+    Debug.println(motorLeftRpmCurr);
     addErrorCounter(ERR_ODOMETRY_LEFT);
     setNextState(STATE_ERROR, 0);
   }
   if (rightErr){
-    Console.print("Right odometry error: PWM=");
-    Console.print(motorRightPWMCurr);
-    Console.print("\tRPM=");
-    Console.println(motorRightRpmCurr);
+    Debug.print("Right odometry error: PWM=");
+    Debug.print(motorRightPWMCurr);
+    Debug.print("\tRPM=");
+    Debug.println(motorRightRpmCurr);
     addErrorCounter(ERR_ODOMETRY_RIGHT);
     setNextState(STATE_ERROR, 0);
   }

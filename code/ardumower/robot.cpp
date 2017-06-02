@@ -420,7 +420,7 @@ void Robot::readSensors(){
       	&& (stateCurr != STATE_STATION_REV) && (stateCurr != STATE_STATION_ROLL) 
       	&& (stateCurr != STATE_STATION_FORW) && (stateCurr != STATE_REMOTE) && (stateCurr != STATE_PERI_OUT_FORW)
         && (stateCurr != STATE_PERI_OUT_REV) && (stateCurr != STATE_PERI_OUT_ROLL)) {
-        Console.println("Error: perimeter too far away");
+        Debug.println("Error: perimeter too far away");
         addErrorCounter(ERR_PERIMETER_TIMEOUT);
         setNextState(STATE_ERROR,0);
       }
@@ -535,10 +535,10 @@ void Robot::readSensors(){
     nextTimeIMU = millis() + 200;   // 5 hz    
     if (imu.getErrorCounter()>0) {
       addErrorCounter(ERR_IMU_COMM);
-      Console.println(F("IMU comm error"));    
+      Debug.println(F("IMU comm error"));    
     }    
     if (!imu.calibrationAvail) {
-      Console.println(F("Error: missing IMU calibration data"));
+      Debug.println(F("Error: missing IMU calibration data"));
       addErrorCounter(ERR_IMU_CALIB);
       setNextState(STATE_ERROR, 0);
     }
@@ -597,7 +597,7 @@ void Robot::receiveGPSTime(){
     gps.stats(&chars, &good_sentences, &failed_cs);    
     if (good_sentences == 0) {
       // no GPS sentences received so far
-      Console.println(F("GPS communication error!"));      
+      Debug.println(F("GPS communication error!"));      
       addErrorCounter(ERR_GPS_COMM);
       // next line commented out as GPS communication may not be available if GPS signal is poor
       //setNextState(STATE_ERROR, 0);
@@ -659,7 +659,7 @@ void Robot::checkCurrent(){
        setMotorPWM( 0, 0, false );
        addErrorCounter(ERR_MOTOR_LEFT);
        setNextState(STATE_ERROR, 0);
-       Console.println("Error: Motor Left current");
+       Debug.println("Error: Motor Left current");
     }
     if (motorRightSense >= motorPowerMax)
     {
@@ -667,7 +667,7 @@ void Robot::checkCurrent(){
        setMotorPWM( 0, 0, false );
        addErrorCounter(ERR_MOTOR_RIGHT);
        setNextState(STATE_ERROR, 0);
-       Console.println("Error: Motor Right current");
+       Debug.println("Error: Motor Right current");
     }
   }
   if ((motorMowSense >= motorMowPowerThreshold) && (lastSetSpiralStartTime < stateStartTime + motorSpiralStartTimeMin)){
@@ -690,7 +690,7 @@ void Robot::checkCurrent(){
 
   if (motorMowSenseCounter >= 30){ //ignore motorMowPower for 3 seconds
       motorMowEnable = false;
-      Console.println("Error: Motor mow current");
+      Debug.println("Error: Motor mow current");
       addErrorCounter(ERR_MOW_SENSE);
       lastTimeMotorMowStuck = millis();
      // if (rollDir == RIGHT) reverseOrBidir(LEFT); // toggle roll dir
@@ -850,7 +850,7 @@ void Robot::checkLawn(){
 void Robot::checkRain(){
   if (!rainUse) return;
   if (rain){
-    Console.println(F("RAIN"));
+    Debug.println(F("RAIN"));
     if (perimeterUse) setNextState(STATE_PERI_FIND, 0);    
       else setNextState(STATE_OFF, 0);    
   }
@@ -923,7 +923,7 @@ void Robot::checkTilt(){
   int rollAngle  = (imu.ypr.roll/PI*180.0);
   if ( (stateCurr != STATE_OFF) && (stateCurr != STATE_ERROR) && (stateCurr != STATE_STATION) ){
     if ( (abs(pitchAngle) > 40) || (abs(rollAngle) > 40) ){
-      Console.println(F("Error: IMU tilt"));
+      Debug.println(F("Error: IMU tilt"));
       addErrorCounter(ERR_IMU_TILT);
       setNextState(STATE_ERROR,0);
     }
@@ -967,7 +967,7 @@ void Robot::checkIfStuck(){
   if (robotIsStuckCounter >= 5){    
     motorMowEnable = false;
     if (errorCounterMax[ERR_STUCK] >= 3){   // robot is definately stuck and unable to move
-    Console.println(F("Error: Mower is stuck"));
+    Debug.println(F("Error: Mower is stuck"));
     addErrorCounter(ERR_STUCK);
     setNextState(STATE_ERROR,0);    //mower is switched into ERROR
     //robotIsStuckCounter = 0;
