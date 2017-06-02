@@ -399,13 +399,13 @@ void Robot::readSensors(){
     }    
     static boolean LEDstate = false;
     if (perimeterInside && !LEDstate) {
-			setActuator(ACT_LED, HIGH);
-			LEDstate = true;
+      setActuator(ACT_LED, HIGH);
+      LEDstate = true;
 	}
     if (!perimeterInside && LEDstate) {
-		setActuator(ACT_LED, LOW);
-        LEDstate = false;
-	}
+      setActuator(ACT_LED, LOW);
+      LEDstate = false;
+	  }
     if ((!perimeterInside) && (perimeterTriggerTime == 0)){
       // set perimeter trigger time      
       if (millis() > stateStartTime + 2000){ // far away from perimeter?
