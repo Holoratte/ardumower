@@ -822,7 +822,7 @@ void RemoteControl::sendTimerDetailMenu(int timerIdx, boolean update){
     serialPort->print("~");
     if ((robot->timer[timerIdx].daysOfWeek >> i) & 1) serialPort->print("(X)  ");
       else serialPort->print("(  )  ");
-    serialPort->print(dayOfWeek[i]);
+    serialPort->println(dayOfWeek[i]);
   }
   serialPort->print("|p9");
   serialPort->print(timerIdx);
@@ -1205,6 +1205,8 @@ void RemoteControl::run(){
       serialPort->print(lat);
       serialPort->print(",");
       serialPort->print(lon);
+      serialPort->print(",");
+      serialPort->print(robot->loopsPerSec);
       serialPort->println();
   } else if (pfodState == PFOD_PLOT_BAT){
     if (millis() >= nextPlotTime){
@@ -1282,7 +1284,9 @@ void RemoteControl::run(){
       serialPort->print(",");
       serialPort->print(robot->dropLeftCounter);
       serialPort->print(",");
-      serialPort->println(robot->dropRightCounter);
+      serialPort->print(robot->dropRightCounter);
+      serialPort->print(",");
+      serialPort->println(robot->loopsPerSec);
     }
   } else if (pfodState == PFOD_PLOT_SENSORS){
     if (millis() >= nextPlotTime){
@@ -1419,12 +1423,12 @@ bool RemoteControl::readSerial(){
           serialPort->print(F("time,leftsen,rightsen,mowsen,sonleft,soncenter,sonright,"));
           serialPort->print(F("perinside,permag,odoleft,odoright,yaw,pitch,roll,gyrox,gyroy,"));
           serialPort->print(F("gyroz,accx,accy,accz,comx,comy,comz,hdop,sats,gspeed,gcourse,"));
-          serialPort->println(F("galt,lat,lon"));
+          serialPort->println(F("galt,lat,lon,loopsPerSec"));
           pfodState = PFOD_LOG_SENSORS;
         }  
         else if (pfodCmd == "y1") {
           // plot battery
-          serialPort->println(F("{=battery|time min`0|battery V`1|charge V`1|charge A`2|capacity Ah`3}"));
+          serialPort->println(F("{=battery'300|time min`0|battery V`1|charge V`1|charge A`2|capacity Ah`3}"));
           nextPlotTime = 0;
           pfodState = PFOD_PLOT_BAT;
         }
@@ -1444,7 +1448,7 @@ bool RemoteControl::readSerial(){
         else if (pfodCmd == "y5") {        
           // plot sensor counters
           serialPort->print(F("{=Sensor counters`300|time s`0|state`1|motL`2|motR`3|motM`4|bumL`5|bumR`6"));
-          serialPort->println(F("|son`7|peri`8|lawn`9|rain`10|dropL`11|dropR`12}"));
+          serialPort->println(F("|son`7|peri`8|lawn`9|rain`10|dropL`11|dropR`12|loopsPerSec`13}"));
           nextPlotTime = 0;
           pfodState = PFOD_PLOT_SENSOR_COUNTERS;
         }
