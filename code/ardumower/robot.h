@@ -44,6 +44,7 @@
 #include "gps.h"
 #include "pfod.h"
 
+
 //#include "QueueList.h"
 //#include <limits.h>
 
@@ -56,7 +57,7 @@
 */
 
 // code version 
-#define VER "1.0a7-Azurit-dev"
+#define VER "1.0a7-Azurit-dev_Sheep"
  
 
 // sensors
@@ -67,6 +68,7 @@ enum {
   SEN_PERIM_RIGHT_EXTRA, // 0..MAX_PERIMETER
   SEN_LAWN_FRONT,        
   SEN_LAWN_BACK,         
+
   SEN_BAT_VOLTAGE,       // Volt * 100
   SEN_CHG_CURRENT,       // Ampere * 100
   SEN_CHG_VOLTAGE,       // Volt * 100
@@ -166,6 +168,8 @@ enum { MOW_RANDOM, MOW_LANES, MOW_BIDIR };
 
 // console mode
 enum { CONSOLE_SENSOR_COUNTERS, CONSOLE_SENSOR_VALUES, CONSOLE_PERIMETER, CONSOLE_OFF };
+
+
 
 
 #define MAX_TIMERS 5
@@ -268,6 +272,8 @@ class Robot
     int motorRollTimeMin  ; // min. roll time (ms)
     int motorReverseTime ;  // max. reverse time (ms)
     long motorForwTimeMax; // max. forward time (ms) / timeout
+    long motorSpiralStartTimeMin; // minimal forward time before spiral start(ms)	
+    long motorSpiralFactor; // factor for spiral width	
     float motorBiDirSpeedRatio1 ;   // bidir mow pattern speed ratio 1
     float motorBiDirSpeedRatio2 ;   // bidir mow pattern speed ratio 2
     bool motorRightSwapDir     ;    // inverse right motor direction? 
@@ -288,6 +294,7 @@ class Robot
     int motorRightSenseCounter ;
     unsigned long nextTimeMotorSense ;
     unsigned long lastSetMotorSpeedTime;
+    unsigned long lastSetSpiralStartTime;
     unsigned long motorLeftZeroTimeout;
     unsigned long motorRightZeroTimeout;
     boolean rotateLeft;
@@ -298,6 +305,7 @@ class Robot
     float motorMowAccel       ;  // motor mower acceleration (warning: do not set too high)
     int motorMowSpeedMaxPwm ;    // motor mower max PWM
     float motorMowPowerMax ;     // motor mower max power (Watt)
+	float motorMowPowerThreshold ;     // motor mower power (Watt) for detection of unmown areas
     char motorMowModulate  ;      // motor mower cutter modulation?
     int motorMowRPMSet        ;   // motor mower RPM (only for cutter modulation)
     float motorMowSenseScale ; // motor mower sense scale (mA=(ADC-zero)/scale)
@@ -392,10 +400,13 @@ class Robot
     char sonarRightUse;
     char sonarCenterUse;
     int sonarTriggerBelow ;    // ultrasonic sensor trigger distance
-		int sonarSlowBelow ;    
+	int sonarSlowBelow ;    
     unsigned int sonarDistCenter ;
     unsigned int sonarDistRight ;
     unsigned int sonarDistLeft ; 
+
+
+
     unsigned int sonarDistCounter ;
     unsigned int tempSonarDistCounter ;
     unsigned long sonarObstacleTimeout ;
@@ -423,11 +434,13 @@ class Robot
     float startChargingIfBelow; // start charging if battery Voltage is below
     unsigned long chargingTimeout; // safety timer for charging
     int batADC;
+
     float chgSenseZero    ;       // charge current sense zero point
     float chgFactor       ;     // charge current conversion factor
     float chgSense        ;       // mV/A empfindlichkeit des Ladestromsensors in mV/A (Für ACS712 5A = 185)
     char chgChange        ;       // messwertumkehr von - nach +         1oder 0
     float batVoltage ;  // battery voltage (Volt)
+
     byte chgSelection     ;       // Senor Auswahl
     float batRefFactor ;
     float batCapacity ; // battery capacity (mAh)

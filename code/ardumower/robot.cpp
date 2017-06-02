@@ -83,6 +83,7 @@ Robot::Robot(){
   motorRightRpmCurr = motorLeftRpmCurr = 0;
   lastMotorRpmTime = 0;
   lastSetMotorSpeedTime = 0;
+  lastSetSpiralStartTime = 0;
   motorLeftSpeedRpmSet =  motorRightSpeedRpmSet = 0; 
   motorLeftPWMCurr = motorRightPWMCurr = 0;
   motorRightSenseADC = motorLeftSenseADC = 0;
@@ -657,6 +658,10 @@ void Robot::checkCurrent(){
        Console.println("Error: Motor Right current");
     }
   }
+  if ((motorMowSense >= motorMowPowerThreshold) && (lastSetSpiralStartTime < stateStartTime + motorSpiralStartTimeMin)){
+      lastSetSpiralStartTime = millis();
+  }
+  
 
   if (motorMowSense >= motorMowPowerMax){
       motorMowSenseCounter++;
@@ -1286,6 +1291,14 @@ void Robot::loop()  {
         if (rollDir == RIGHT) motorRightSpeedRpmSet = ((double)motorLeftSpeedRpmSet) * ratio;
           else motorLeftSpeedRpmSet = ((double)motorRightSpeedRpmSet) * ratio;                            
       }             
+	  if (lastSetSpiralStartTime >= stateStartTime + motorSpiralStartTimeMin) {
+		  if (rollDir == RIGHT){
+		 motorRightSpeedRpmSet = motorSpeedMaxRpm*(1.0/(1.0+(float)motorSpiralFactor/(float)(millis()-lastSetSpiralStartTime)));
+		  }
+		  else{
+		 motorLeftSpeedRpmSet = motorSpeedMaxRpm*(1.0/(1.0+(float)motorSpiralFactor/(float)(millis()-lastSetSpiralStartTime)));
+		  }
+	  }
       checkErrorCounter();    
       checkTimer();
       checkRain();
@@ -1309,7 +1322,7 @@ void Robot::loop()  {
         if (abs(distancePI(imu.ypr.yaw, imuRollHeading)) < PI/36) setNextState(STATE_FORWARD,0);				        
       } else {
         if (millis() >= stateEndTime) {
-          setNextState(STATE_FORWARD,0);				          
+			setNextState(STATE_FORWARD, rollDir); 	          
         }        
       }
       break;
@@ -1407,7 +1420,7 @@ void Robot::loop()  {
       if (perimeterInside || (millis() >= stateEndTime)) setNextState (STATE_PERI_OUT_ROLL, rollDir); 
       break;
     case STATE_PERI_OUT_ROLL: 
-      if (millis() >= stateEndTime) setNextState(STATE_FORWARD,0);                
+      if (millis() >= stateEndTime) setNextState(STATE_FORWARD,rollDir);                
       break;
 
     case STATE_STATION_CHECK:

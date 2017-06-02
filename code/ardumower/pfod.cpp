@@ -304,6 +304,8 @@ void RemoteControl::sendMotorMenu(boolean update){
   sendSlider("a19", F("Roll time min"), robot->motorRollTimeMin, "", 1, (robot->motorRollTimeMax - 500)); 
   sendSlider("a08", F("Reverse time"), robot->motorReverseTime, "", 1, 8000);     
   sendSlider("a09", F("Forw time max"), robot->motorForwTimeMax, "", 10, 80000);       
+  sendSlider("a22", F("motorSpiralStartTimeMin"), robot->motorSpiralStartTimeMin, "", 10, 80000);       
+  sendSlider("a23", F("motorSpiralFactor"), robot->motorSpiralFactor, "", 10, 100000);       
   sendSlider("a12", F("Bidir speed ratio 1"), robot->motorBiDirSpeedRatio1, "", 0.01, 1.0);       
   sendSlider("a13", F("Bidir speed ratio 2"), robot->motorBiDirSpeedRatio2, "", 0.01, 1.0);       
   sendPIDSlider("a14", "RPM", robot->motorLeftPID, 0.01, 3.0);        
@@ -372,6 +374,8 @@ void RemoteControl::processMotorMenu(String pfodCmd){
     else if (pfodCmd.startsWith("a19")) processSlider(pfodCmd, robot->motorRollTimeMin, 1); 
     else if (pfodCmd.startsWith("a08")) processSlider(pfodCmd, robot->motorReverseTime, 1);
     else if (pfodCmd.startsWith("a09")) processSlider(pfodCmd, robot->motorForwTimeMax, 10);
+    else if (pfodCmd.startsWith("a22")) processSlider(pfodCmd, robot->motorSpiralStartTimeMin, 10);
+    else if (pfodCmd.startsWith("a23")) processSlider(pfodCmd, robot->motorSpiralFactor, 10);
     else if (pfodCmd.startsWith("a11")) processSlider(pfodCmd, robot->motorAccel, 1);    
     else if (pfodCmd.startsWith("a12")) processSlider(pfodCmd, robot->motorBiDirSpeedRatio1, 0.01);    
     else if (pfodCmd.startsWith("a13")) processSlider(pfodCmd, robot->motorBiDirSpeedRatio2, 0.01);    
@@ -399,6 +403,7 @@ void RemoteControl::sendMowMenu(boolean update){
   serialPort->print(F("|o11~current in mA "));
   serialPort->print(robot->motorMowSenseCurrent);
   sendSlider("o02", F("Power max"), robot->motorMowPowerMax, "", 0.1, 100);         
+  sendSlider("o12", F("motorMowPowerThreshold"), robot->motorMowPowerThreshold, "", 0.1, 100);         
   sendSlider("o03", F("calibrate mow motor "), robot->motorMowSenseCurrent, "", 1, 3000, 0);          
   serialPort->print(F("|o04~Speed "));
   serialPort->print(robot->motorMowPWMCurr);
@@ -423,6 +428,7 @@ void RemoteControl::sendMowMenu(boolean update){
 }
 
 void RemoteControl::processMowMenu(String pfodCmd){      
+  if (pfodCmd.startsWith("o12")) processSlider(pfodCmd, robot->motorMowPowerThreshold, 0.1);
   if (pfodCmd.startsWith("o02")) processSlider(pfodCmd, robot->motorMowPowerMax, 0.1);
     else if (pfodCmd.startsWith("o03")){
             processSlider(pfodCmd, robot->motorMowSenseCurrent, 1);

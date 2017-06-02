@@ -55,6 +55,8 @@ Mower::Mower(){
   motorRollTimeMin           = 750;       // min. roll time (ms) should be smaller than motorRollTimeMax
   motorReverseTime           = 1200;      // max. reverse time (ms)
   motorForwTimeMax           = 80000;     // max. forward time (ms) / timeout
+  motorSpiralStartTimeMin       = 6000;     // minimal forward time before spiral start(ms)	
+  motorSpiralFactor          = 30000;    // factor for spiral width
   motorBiDirSpeedRatio1      = 0.3;       // bidir mow pattern speed ratio 1
   motorBiDirSpeedRatio2      = 0.92;      // bidir mow pattern speed ratio 2
   
@@ -77,6 +79,7 @@ Mower::Mower(){
   motorMowAccel              = 2000;       // motor mower acceleration (warning: do not set too low) 2000 seems to fit best considerating start time and power consumption 
   motorMowSpeedMaxPwm        = 255;        // motor mower max PWM
   motorMowPowerMax           = 75.0;       // motor mower max power (Watt)
+  motorMowPowerThreshold     = 15.0;       // motor mower power (Watt) threshold to detect unmown areas
   motorMowModulate           = 0;          // motor mower cutter modulation?
   motorMowRPMSet             = 3300;       // motor mower RPM (only for cutter modulation)
   motorMowSenseScale         = ADC2voltage(1)*1905;    // ADC to mower motor sense milliamp 
@@ -85,7 +88,7 @@ Mower::Mower(){
   motorMowPID.Kd             = 0.01;
   
   //  ------ bumper (BumperDuino)-------------------------------
-  bumperUse                  = 0;          // has bumpers?
+  bumperUse                  = 1;          // has bumpers?
   tiltUse                    = 0;          // use tilt-sensor?
   
   //  ------ drop -----------------------------------
@@ -96,15 +99,15 @@ Mower::Mower(){
   rainUse                    = 0;          // use rain sensor?
   
   // ------ sonar ------------------------------------
-  sonarUse                   = 0;          // use ultra sonic sensor? (WARNING: robot will slow down, if enabled but not connected!)
+  sonarUse                   = 1;          // use ultra sonic sensor? (WARNING: robot will slow down, if enabled but not connected!)
   sonarLeftUse               = 1;
   sonarRightUse              = 1;
-  sonarCenterUse             = 0;
-  sonarTriggerBelow          = 1050;       // ultrasonic sensor trigger distance (0=off)
-	sonarSlowBelow             = 1050*2;     // ultrasonic sensor slow down distance
+  sonarCenterUse             = 1;
+  sonarTriggerBelow          = 32;       // ultrasonic sensor trigger distance (0=off)
+	sonarSlowBelow             = sonarTriggerBelow *2;     // ultrasonic sensor slow down distance
   
   // ------ perimeter ---------------------------------
-  perimeterUse               = 0;          // use perimeter?    
+  perimeterUse               = 1;          // use perimeter?    
   perimeterTriggerTimeout    = 0;          // perimeter trigger timeout when escaping from inside (ms)  
   perimeterOutRollTimeMax    = 2000;       // roll time max after perimeter out (ms)
   perimeterOutRollTimeMin    = 750;        // roll time min after perimeter out (ms)
@@ -133,7 +136,7 @@ Mower::Mower(){
   imuRollPID.Kd              = 0;  
   
   // ------ model R/C ------------------------------------
-  remoteUse                  = 1;          // use model remote control (R/C)?
+  remoteUse                  = 0;          // use model remote control (R/C)?
   
   // ------ battery -------------------------------------
   batMonitor                 = 1;          // monitor battery and charge voltage?
@@ -141,10 +144,10 @@ Mower::Mower(){
   batSwitchOffIfBelow        = 21.7;       // switch off battery if below voltage (Volt)
 		
   #if defined (PCB_1_2)     // PCB 1.2	  
-	  batSwitchOffIfIdle         = 0;          // switch off battery if idle (minutes, 0=off) 	
-		startChargingIfBelow       = 99999.0;      // start charging if battery Voltage is below
-		chargingTimeout            = 2147483647;  // safety timer for charging (ms) 12600000 = 3.5hrs
-		batFullCurrent             = -99999.0;       // current flowing when battery is fully charged	 (amp)
+	  batSwitchOffIfIdle         = 5;          // switch off battery if idle (minutes, 0=off) 	
+		startChargingIfBelow       = 27;      // start charging if battery Voltage is below
+		chargingTimeout            = 12600000;  // safety timer for charging (ms) 12600000 = 3.5hrs
+		batFullCurrent             = 0.3;       // current flowing when battery is fully charged	 (amp)
 		batFactor                  = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor	*10
 		batChgFactor               = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor *10
 		chgFactor                  = ADC2voltage(1)*10;        // ADC to charging current ampere factor *10
@@ -177,7 +180,7 @@ Mower::Mower(){
   #endif
   
   batFull                    = 29.4;      // battery reference Voltage (fully charged) PLEASE ADJUST IF USING A DIFFERENT BATTERY VOLTAGE! FOR a 12V SYSTEM TO 14.4V
-  batChargingCurrentMax      = 1.6;       // maximum current your charger can devliver  
+  batChargingCurrentMax      = 3.1;       // maximum current your charger can devliver  
   
   // ------  charging station ---------------------------
   stationRevTime             = 1800;       // charge station reverse time (ms)
@@ -249,7 +252,8 @@ ISR(PCINT0_vect){
 #ifdef __AVR__
 
   volatile byte oldOdoPins = 0;
-  ISR(PCINT2_vect, ISR_NOBLOCK)
+  //ISR(PCINT2_vect, ISR_NOBLOCK)
+  ISR(PCINT2_vect)
   {
     const byte actPins = PINK;                				// read register PINK
     const byte setPins = (oldOdoPins ^ actPins);
@@ -573,7 +577,7 @@ int Mower::readSensor(char type){
     //case SEN_PERIM_RIGHT: return Perimeter.getMagnitude(1); break;
     
 // battery------------------------------------------------------------------------------------------------
-    case SEN_BAT_VOLTAGE: ADCMan.read(pinVoltageMeasurement);  return ADCMan.read(pinBatteryVoltage); break;
+    case SEN_BAT_VOLTAGE: return ADCMan.read(pinBatteryVoltage); break;
     case SEN_CHG_VOLTAGE: return ADCMan.read(pinChargeVoltage); break;
     //case SEN_CHG_VOLTAGE: return((int)(((double)analogRead(pinChargeVoltage)) * batFactor)); break;
     case SEN_CHG_CURRENT: return ADCMan.read(pinChargeCurrent); break;
