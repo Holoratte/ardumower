@@ -6,19 +6,19 @@ if (millis() < nextTimeCheckBattery) return;
 	nextTimeCheckBattery = millis() + 1000;  
   if (batMonitor){
     if ((batVoltage < batSwitchOffIfBelow) && (idleTimeSec != BATTERY_SW_OFF)) {      
-			Console.println(F("triggered batSwitchOffIfBelow"));
+			Debug.println(F("triggered batSwitchOffIfBelow"));
       addErrorCounter(ERR_BATTERY);      
 			delay(2000); // avois corrupting EEPROM while this is also called when power is turned OFF
 			beep(2, true);      
 			loadSaveErrorCounters(false); // saves error counters
       loadSaveRobotStats(false);    // saves robot stats
       idleTimeSec = BATTERY_SW_OFF; // flag to remember that battery is switched off
-      Console.println(F("BATTERY switching OFF"));
+      Debug.println(F("BATTERY switching OFF"));
       setActuator(ACT_BATTERY_SW, 0);  // switch off battery                     
     }
     else if ((batVoltage < batGoHomeIfBelow) && (stateCurr == STATE_FORWARD) 
 			&& (perimeterUse)) {    //UNTESTED please verify
-      Console.println(F("triggered batGoHomeIfBelow"));
+      Debug.println(F("triggered batGoHomeIfBelow"));
       beep(2, true);      
       setNextState(STATE_PERI_FIND, 0);
     }
@@ -28,12 +28,12 @@ if (millis() < nextTimeCheckBattery) return;
     if (idleTimeSec != BATTERY_SW_OFF){ // battery already switched off?
       idleTimeSec ++; // add one second idle time
       if ((batSwitchOffIfIdle != 0) && (idleTimeSec > batSwitchOffIfIdle * 60)) {        
-        Console.println(F("triggered batSwitchOffIfIdle"));      
+        Debug.println(F("triggered batSwitchOffIfIdle"));      
         beep(1, true);      
         loadSaveErrorCounters(false); // saves error counters
         loadSaveRobotStats(false);    // saves robot stats
         idleTimeSec = BATTERY_SW_OFF; // flag to remember that battery is switched off
-        Console.println(F("BATTERY switching OFF"));
+        Debug.println(F("BATTERY switching OFF"));
         setActuator(ACT_BATTERY_SW, 0);  // switch off battery               
       }
     }

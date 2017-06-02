@@ -396,9 +396,8 @@ void Robot::readSensors(){
       perimeterLastTransitionTime = millis();
       perimeterInside = perimeter.isInside(0);
     }    
-	static boolean LEDstate = false;
+    static boolean LEDstate = false;
     if (perimeterInside && !LEDstate) {
-		
 			setActuator(ACT_LED, HIGH);
 			LEDstate = true;
 	}
