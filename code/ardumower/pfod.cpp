@@ -295,7 +295,7 @@ void RemoteControl::sendMotorMenu(boolean update){
   serialPort->print(F("|a05~Speed l, r"));
   serialPort->print(robot->motorLeftPWMCurr);
   serialPort->print(", ");
-  serialPort->print(robot->motorRightPWMCurr);
+  serialPort->println(robot->motorRightPWMCurr);
   sendSlider("a06", F("Speed max in rpm"), robot->motorSpeedMaxRpm, "", 1, 100);    
   sendSlider("a15", F("Speed max in pwm"), robot->motorSpeedMaxPwm, "", 1, 255);      
   sendSlider("a11", F("Accel"), robot->motorAccel, "", 1, 2000, 500);  
@@ -1448,7 +1448,7 @@ bool RemoteControl::readSerial(){
         else if (pfodCmd == "y5") {        
           // plot sensor counters
           serialPort->print(F("{=Sensor counters`300|time s`0|state`1|motL`2|motR`3|motM`4|bumL`5|bumR`6"));
-          serialPort->println(F("|son`7|peri`8|lawn`9|rain`10|dropL`11|dropR`12|loopsPerSec`13}"));
+          serialPort->println(F("|son`7|peri`8|lawn`9|rain`10|dropL`11|dropR`12|looPS`13}"));
           nextPlotTime = 0;
           pfodState = PFOD_PLOT_SENSOR_COUNTERS;
         }
