@@ -141,12 +141,17 @@
   #define ESP8266port Serial1
   #define Bluetooth Serial2
   #define Debug Console
+  //#define Debug Bluetooth
+  //#define Debug ESP8266port
 #else 
   // Arduino Due  
    // Due has two serial ports: Native (SerialUSB) and Programming (Serial) - we want to use 'SerialUSB' for 'Console'
   #define Console Serial
   #define ESP8266port Serial1
   #define Bluetooth Serial2  // Ardumower default
+  #define Debug Console
+  //#define Debug Bluetooth
+  //#define Debug ESP8266port
 #endif
 
 // ------- ultrasonic config ---------------------------------------------------------
