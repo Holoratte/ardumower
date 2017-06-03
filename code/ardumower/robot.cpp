@@ -645,7 +645,6 @@ void Robot::reverseOrBidir(byte aRollDir){
     } else if (stateCurr == STATE_REVERSE) {
       setNextState(STATE_FORWARD, LEFT);
     }
-  if (stateCurr == STATE_MANUAL) setNextState(STATE_OFF, 0);
   } else setNextState(STATE_REVERSE, aRollDir);
 }
 
@@ -1297,8 +1296,6 @@ void Robot::loop()  {
       checkCurrent();
       checkBumpers();
       checkDrop();
-      checkSonar();
-      //checkPerimeterBoundary(); 
       //bb add end
       break;
     case STATE_FORWARD:
