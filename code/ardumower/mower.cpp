@@ -314,9 +314,9 @@ ISR(PCINT0_vect){
 //void rpm_interrupt(){
 //}
 
-NewPing NewSonarLeft(pinSonarLeftTrigger, pinSonarLeftEcho, 500);
-NewPing NewSonarRight(pinSonarRightTrigger, pinSonarRightEcho, 500);
-NewPing NewSonarCenter(pinSonarCenterTrigger, pinSonarCenterEcho, 500);
+NewPing NewSonarLeft(pinSonarLeftTrigger, pinSonarLeftEcho, 160);
+NewPing NewSonarRight(pinSonarRightTrigger, pinSonarRightEcho, 160);
+NewPing NewSonarCenter(pinSonarCenterTrigger, pinSonarCenterEcho, 160);
 
 
 // WARNING: never use 'Serial' in the Ardumower code - use 'Console' instead
