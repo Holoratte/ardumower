@@ -645,8 +645,10 @@ void Robot::reverseOrBidir(byte aRollDir){
     } else if (stateCurr == STATE_REVERSE) {
       setNextState(STATE_FORWARD, LEFT);
     }
-  } else setNextState(STATE_REVERSE, aRollDir);
-}
+  
+  }
+  if (stateCurr == STATE_MANUAL) setNextState(STATE_OFF, 0); 
+  else setNextState(STATE_REVERSE, aRollDir);}
 
 // check motor current
 void Robot::checkCurrent(){
@@ -1296,6 +1298,7 @@ void Robot::loop()  {
       checkCurrent();
       checkBumpers();
       checkDrop();
+      checkSonar();
       //bb add end
       break;
     case STATE_FORWARD:
