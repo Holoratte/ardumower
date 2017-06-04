@@ -129,7 +129,9 @@ Robot::Robot(){
   imuRollHeading = 0;
   imuRollDir = LEFT;  
   
-  perimeterMag = 0;
+  perimeterMag = 1;
+  perimeterMagMedian.add(perimeterMag);
+  lastPerimeterTrackInside = 1;
   perimeterInside = true;
   perimeterCounter = 0;  
   perimeterLastTransitionTime = 0;
@@ -390,8 +392,9 @@ void Robot::readSensors(){
 
 
   if ((perimeterUse) && (millis() >= nextTimePerimeter)){    
-    nextTimePerimeter = millis() +  50; // 50    
+    nextTimePerimeter = millis() +  30; // 50    
     perimeterMag = readSensor(SEN_PERIM_LEFT);
+    perimeterMagMedian.add(abs(perimeterMag));
     if ((perimeter.isInside(0) != perimeterInside)){      
       perimeterCounter++;
       perimeterLastTransitionTime = millis();
@@ -419,7 +422,7 @@ void Robot::readSensors(){
       	&& (stateCurr != STATE_STATION_CHARGING) && (stateCurr != STATE_STATION_CHECK) 
       	&& (stateCurr != STATE_STATION_REV) && (stateCurr != STATE_STATION_ROLL) 
       	&& (stateCurr != STATE_STATION_FORW) && (stateCurr != STATE_REMOTE) && (stateCurr != STATE_PERI_OUT_FORW)
-        && (stateCurr != STATE_PERI_OUT_REV) && (stateCurr != STATE_PERI_OUT_ROLL)) {
+        && (stateCurr != STATE_PERI_OUT_REV) && (stateCurr != STATE_PERI_OUT_ROLL) && (stateCurr != STATE_PERI_TRACK)) {
         Debug.println("Error: perimeter too far away");
         addErrorCounter(ERR_PERIMETER_TIMEOUT);
         setNextState(STATE_ERROR,0);

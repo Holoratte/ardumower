@@ -223,7 +223,7 @@ void Robot::motorControlImuRoll(){
 // PID controller: track perimeter 
 void Robot::motorControlPerimeter(){    
   if (millis() < nextTimeMotorPerimeterControl) return;
-    nextTimeMotorPerimeterControl = millis() + 100;
+    nextTimeMotorPerimeterControl = millis() + 30;
 
   if ((millis() > stateStartTime + 5000) && (millis() > perimeterLastTransitionTime + trackingPerimeterTransitionTimeOut)){
     // robot is wheel-spinning while tracking => roll to get ground again
@@ -244,12 +244,19 @@ void Robot::motorControlPerimeter(){
     }
     return;
   }   
-  if (perimeterInside)
-      perimeterPID.x = -1;
-    else
-      perimeterPID.x = 1;
-
-  perimeterPID.w = 0;
+  perimeterPID.x = 5*((double(perimeterMag)/double(perimeterMagMedian.getHighest())));
+  if (perimeterInside){
+      perimeterPID.w = -1;
+      if (!lastPerimeterTrackInside) perimeterPID.reset();
+      lastPerimeterTrackInside = 1;
+  }
+    else{
+      perimeterPID.w = 1;
+      if (lastPerimeterTrackInside) perimeterPID.reset();
+      lastPerimeterTrackInside = 0;
+    }
+  //if (perimeterPID.x > 1) perimeterPID.x = 1;
+  //else if (perimeterPID.x < -1) perimeterPID.x = -1;
   perimeterPID.y_min = -motorSpeedMaxPwm/1.5;
   perimeterPID.y_max = motorSpeedMaxPwm/1.5;		
   perimeterPID.max_output = motorSpeedMaxPwm/1.5;
