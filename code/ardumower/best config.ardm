@@ -1,0 +1,175 @@
+SETTINGS ARDUMOWER2017-06-04 21:14:12
+
+
+
+MOTOR																			|s1
+Power max  (maximum:1000 minimum:0)  X 0.1										|a02`200
+calibrate left motor   (maximum:1000 minimum:0)  X 1							|a03`0
+calibrate right motor  (maximum:1000 minimum:0)  X 1							|a04`0
+Speed max in rpm  (maximum:100 minimum:0)  X 1									|a06`25
+Speed max in pwm  (maximum:255 minimum:0)  X 1									|a15`255
+Accel  (maximum:2000 minimum:500)  X 1											|a11`1000
+Power ignore time  (maximum:8000 minimum:0)  X 1								|a18`2000
+Roll time max  (maximum:8000 minimum:0)  X 1									|a07`1500
+Roll time min  (maximum:1000 minimum:0)  X 1									|a19`750
+Reverse time  (maximum:8000 minimum:0)  X 1										|a08`1200
+Forw time max  (maximum:8000 minimum:0)  X 10									|a09`8000
+motorSpiralStartTimeMin  (maximum:8000 minimum:0)  X 10							|a22`600
+motorSpiralFactor  (maximum:10000 minimum:0)  X 10								|a23`3000
+Bidir speed ratio 1  (maximum:100 minimum:0)  X 0.01							|a12`30
+Bidir speed ratio 2  (maximum:100 minimum:0)  X 0.01							|a13`92
+RPM_P  (maximum:300 minimum:0)  X 0.01											|a14p`119
+RPM_I  (maximum:300 minimum:0)  X 0.01											|a14i`29
+RPM_D  (maximum:300 minimum:0)  X 0.01											|a14d`25
+for config file:motorSenseScale l, r9.31, 9.31									|a14
+Swap left direction NO															|a16
+Swap right direction NO															|a17
+
+
+
+MOW																				|s2
+Overload Counter 0																|o00
+Power in Watt 0.00																|o01
+current in mA 0.00																|o11
+Power max  (maximum:1000 minimum:0)  X 0.1										|o02`750
+motorMowPowerThreshold  (maximum:1000 minimum:0)  X 0.1							|o12`75
+calibrate mow motor   (maximum:3000 minimum:0)  X 1								|o03`0
+Speed 0.00																		|o04
+Speed max  (maximum:255 minimum:0)  X 1											|o05`200
+RPM 0																			|o07
+RPM set  (maximum:4500 minimum:0)  X 1											|o08`3300
+RPM_P  (maximum:100 minimum:0)  X 0.01											|o09p`0
+RPM_I  (maximum:100 minimum:0)  X 0.01											|o09i`1
+RPM_D  (maximum:100 minimum:0)  X 0.01											|o09d`1
+
+
+
+BUMPERDUINO																		|s3
+Use bumper YES																	|b00
+Use tilt NO																		|b03
+
+
+
+SONAR																			|s4
+Use YES																			|d00
+Use left YES																	|d04
+Use center YES																	|d05
+Use right YES																	|d06
+Counter 0																		|d01
+Trigger below (0=off)  (maximum:3000 minimum:0)  X 1							|d03`32
+Slow below  (maximum:3000 minimum:0)  X 1										|d07`72
+
+
+
+PERIMETER																		|s5
+Use YES																			|e00
+Timed-out if below smag  (maximum:2000 minimum:0)  X 1							|e08`250
+Timeout (s) if not inside  (maximum:20 minimum:1)  X 1							|e14`8
+Trigger timeout  (maximum:2000 minimum:0)  X 1									|e04`0
+Perimeter out roll time max  (maximum:8000 minimum:0)  X 1						|e05`2000
+Perimeter out roll time min  (maximum:8000 minimum:0)  X 1						|e06`750
+Perimeter out reverse time  (maximum:8000 minimum:0)  X 1						|e15`2200
+Perimeter tracking roll time  (maximum:8000 minimum:0)  X 1						|e16`1500
+Perimeter tracking reverse time  (maximum:8000 minimum:0)  X 1					|e17`2200
+Transition timeout  (maximum:10000 minimum:0)  X 1								|e11`10000
+Track error timeout  (maximum:10000 minimum:0)  X 1								|e12`10000
+Track_P  (maximum:1000 minimum:0)  X 0.1										|e07p`44
+Track_I  (maximum:1000 minimum:0)  X 0.1										|e07i`88
+Track_D  (maximum:1000 minimum:0)  X 0.1										|e07d`0
+Swap coil polarity NO															|e10
+Block inner wheel  YES															|e13
+
+
+
+LAWN SENSOR																		|s6
+Use NO																			|f00
+Counter 0																		|f01
+
+
+
+IMU																				|s7
+Use NO																			|g00
+Yaw 0.00 deg																	|g01
+DriveHeading 0.00 deg															|g09
+Pitch 0.00 deg																	|g02
+Roll 0.00 deg																	|g03
+Correct dir NO																	|g04
+Dir_P  (maximum:200 minimum:0)  X 0.1											|g05p`50
+Dir_I  (maximum:200 minimum:0)  X 0.1											|g05i`10
+Dir_D  (maximum:200 minimum:0)  X 0.1											|g05d`10
+Roll_P  (maximum:300 minimum:0)  X 0.1											|g06p`8
+Roll_I  (maximum:300 minimum:0)  X 0.1											|g06i`210
+Roll_D  (maximum:300 minimum:0)  X 0.1											|g06d`0
+Acc cal next side																|g07
+Com cal start/stop																|g08
+
+
+
+R/C																				|s8
+Use NO																			|h00
+
+
+
+BATTERY																			|s9
+Battery 27.23 V 19.48 °C														|j00
+Monitor YES																		|j01
+Go home if below Volt  (maximum:294 minimum:211)  X 0.1							|j02`241
+Switch off if idle minutes  (maximum:300 minimum:1)  X 1						|j12`5
+Switch off if below Volt  (maximum:294 minimum:211)  X 0.1						|j03`237
+Charge 29.38V 0.00A																|j04
+Charge factor  (maximum:9 minimum:59)  X 0.001									|j08`48
+charging starts if Voltage is below  (maximum:294 minimum:0)  X 0.1				|j10`270
+Battery is fully charged if current is below  (maximum:30 minimum:0)  X 0.1		|j11`3
+
+
+
+STATION																			|s10
+Reverse time  (maximum:8000 minimum:0)  X 1										|k00`1800
+Roll time  (maximum:8000 minimum:0)  X 1										|k01`1000
+Forw time  (maximum:8000 minimum:0)  X 1										|k02`1500
+Station reverse check time  (maximum:8000 minimum:0)  X 1						|k03`1700
+
+
+
+ODOMETRY																		|s11
+Use YES																			|l00
+Ticks per one full revolution  (maximum:2120 minimum:0)  X 1					|l04`2120
+Ticks per cm  (maximum:350 minimum:0)  X 0.1									|l01`134
+Wheel base cm  (maximum:500 minimum:0)  X 0.1									|l02`360
+
+
+
+RAIN																			|s13
+Use NO																			|m00
+Counter 0																		|m01
+
+
+
+DROP SENSOR																		|s15
+Use NO																			|u00
+
+
+
+GPS																				|s14
+Use NO																			|q00
+Stuck if GPS speed is below  (maximum:30 minimum:0)  X 0.1						|q01`2
+GPS speed ignore time  (maximum:10000 minimum:1200)  X 1						|q02`5000
+
+
+
+TIMER																			|i
+Use NO																			|i99
+
+
+
+DATE/TIME																		|s12
+Sun 01.01.2013, 12:00															|t00
+Sun  (maximum:6 minimum:0)  X 1													|t01`0
+Day   (maximum:31 minimum:1)  X 1												|t02`1
+Month   (maximum:12 minimum:1)  X 1												|t03`1
+Year   (maximum:2020 minimum:2013)  X 1											|t04`2013
+Hour   (maximum:23 minimum:0)  X 1												|t05`12
+Minute   (maximum:59 minimum:0)  X 1											|t06`0
+
+
+
