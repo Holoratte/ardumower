@@ -217,9 +217,6 @@ void Robot::motorControlImuRoll(){
   setMotorPWM( leftSpeed, rightSpeed, false );                   
 
 }
-
-
-
 // PID controller: track perimeter 
 void Robot::motorControlPerimeter(){    
   if (millis() < nextTimeMotorPerimeterControl) return;
@@ -244,7 +241,7 @@ void Robot::motorControlPerimeter(){
     }
     return;
   }   
-  perimeterPID.x = 5*((double(perimeterMag)/double(perimeterMagMedian.getHighest())));
+  perimeterPID.x = 5*((double(perimeterMag)/double(perimeterMagMax)));
   if (perimeterInside){
       perimeterPID.w = -1;
       if (!lastPerimeterTrackInside) perimeterPID.reset();

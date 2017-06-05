@@ -368,6 +368,7 @@ class Robot
     PID perimeterPID ;             // perimeter PID controller
     int perimeterMag ;             // perimeter magnitude
     RunningMedian perimeterMagMedian = RunningMedian(300);
+    int perimeterMagMax; //maximum perimeter magnitude detected while perimeter find
     boolean lastPerimeterTrackInside; // was inside or outside
     boolean perimeterInside ;      // is inside perimeter?
     unsigned long perimeterTriggerTime; // time to trigger perimeter transition (timeout)
