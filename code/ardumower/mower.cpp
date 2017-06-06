@@ -118,7 +118,7 @@ Mower::Mower(){
   perimeterPID.Ki            = 11.8;
   perimeterPID.Kd            = 0;  
   
-  trackingPerimeterTransitionTimeOut              = 2000;
+  trackingPerimeterTransitionTimeOut              = 10000;
   trackingErrorTimeOut                            = 10000;
   trackingBlockInnerWheelWhilePerimeterStruggling = 1;
   
