@@ -35,7 +35,7 @@
 #define ADDR_ROBOT_STATS 800
 
 char* stateNames[]={"OFF ", "RC  ", "FORW", "ROLL", "REV ", "CIRC", "ERR ", "PFND", "PTRK", "PROL", "PREV", "STAT", "CHARG", "STCHK",
-  "STREV", "STROL", "STFOR", "MANU", "ROLW", "POUTFOR", "POUTREV", "POUTROLL", "TILT"};
+  "STREV", "STROL", "STFOR", "MANU", "ROLW", "POUTFOR", "POUTREV", "POUTROLL", "TILT", "BUMPERSTUCK"};
 
 char *mowPatternNames[] = {"RAND", "LANE", "BIDIR"};
 
@@ -117,7 +117,8 @@ Robot::Robot(){
   lastTimeMotorMowStuck = 0;
 
   bumperLeftCounter = bumperRightCounter = 0;
-  bumperLeft = bumperRight = false;          
+  bumperLeft = bumperRight = false;   
+  bumperLeftLastTime = bumperRightLastTime = 0;        
    
    dropLeftCounter = dropRightCounter = 0;                                                                                              // Dropsensor - Absturzsensor
    dropLeft = dropRight = false;                                                                                                        // Dropsensor - Absturzsensor
@@ -209,7 +210,6 @@ Robot::Robot(){
 char *Robot::mowPatternName(){
   return mowPatternNames[mowPatternCurr];
 }
-
 
 
 void Robot::resetIdleTime(){
@@ -391,15 +391,22 @@ void Robot::readSensors(){
   }  
 
 
-  if ((perimeterUse) && (millis() >= nextTimePerimeter)){    
-    nextTimePerimeter = millis() +  30; // 50    
-    perimeterMag = readSensor(SEN_PERIM_LEFT);
-    perimeterMagMedian.add(abs(perimeterMag));
+  if ((perimeterUse) && (millis() >= nextTimePerimeter)){  
+	  if ((stateCurr == STATE_PERI_TRACK) || (stateCurr == STATE_PERI_FIND)) { 
+      nextTimePerimeter = millis() +  30; // 30 
+      perimeterMag = readSensor(SEN_PERIM_LEFT);
+      perimeterMagMedian.add(abs(perimeterMag));
+	  }
+    else {
+      nextTimePerimeter = millis() +  50; // 50 
+      perimeterMag = readSensor(SEN_PERIM_LEFT);   
+    }
     if ((perimeter.isInside(0) != perimeterInside)){      
       perimeterCounter++;
       perimeterLastTransitionTime = millis();
       perimeterInside = perimeter.isInside(0);
-    }    
+    }
+  
     static boolean LEDstate = false;
     if (perimeterInside && !LEDstate) {
       setActuator(ACT_LED, HIGH);
@@ -747,12 +754,24 @@ void Robot::checkCurrent(){
 // check bumpers
 void Robot::checkBumpers(){
   if ((mowPatternCurr == MOW_BIDIR) && (millis() < stateStartTime + 4000)) return;
-
+	// immediate stop at bumping
   if ((bumperLeft || bumperRight)) {    
-      if (bumperLeft) {
-        reverseOrBidir(RIGHT);          
+    motorLeftRpmCurr = motorRightRpmCurr = 0 ;
+    setMotorPWM( 0, 0, false );
+    if (bumperLeft) {
+        if (((millis() - bumperLeftLastTime) > 2000) && ((millis() - bumperLeftLastTime) < (motorReverseTime+5000))){
+          setNextState(STATE_BUMPER_STUCK, LEFT);
+        }else{
+        bumperLeftLastTime = millis();
+        reverseOrBidir(RIGHT);
+        }
       } else {
+        if (((millis() - bumperRightLastTime) > 2000) && ((millis() - bumperRightLastTime) < (motorReverseTime + 5000))){
+          setNextState(STATE_BUMPER_STUCK, RIGHT);
+        }else{
+        bumperRightLastTime = millis();
         reverseOrBidir(LEFT);
+        }
       }    
   }  
 }
@@ -1201,6 +1220,11 @@ void Robot::setNextState(byte stateNew, byte dir){
   if (stateNew != STATE_REMOTE){
     motorMowSpeedPWMSet = motorMowSpeedMaxPwm;
   }
+  if (stateNew == STATE_BUMPER_STUCK){
+    motorMowEnable = false;    
+    motorLeftSpeedRpmSet = motorRightSpeedRpmSet = 0; 
+  }
+    //loadSaveRobotStats(false);  
  
   sonarObstacleTimeout = 0;
   // state has changed    
@@ -1359,7 +1383,7 @@ void Robot::loop()  {
         checkErrorCounter();    
         checkTimer();
         checkCurrent();            
-        checkBumpers();
+        //checkBumpers();
         checkDrop();                                                                                                                            // Dropsensor - Absturzsensor
         //checkSonar();             
         checkPerimeterBoundary();      
@@ -1467,7 +1491,12 @@ void Robot::loop()  {
     case STATE_STATION_FORW:
       // forward (charge station)    
       if (millis() >= stateEndTime) setNextState(STATE_FORWARD,0);				        
-      break;      
+      break;
+    case STATE_BUMPER_STUCK:
+      Debug.println("error: bumper is stuck");
+      addErrorCounter(ERR_STUCK);
+      setNextState(STATE_ERROR,0);
+      break;
   } // end switch  
       
 

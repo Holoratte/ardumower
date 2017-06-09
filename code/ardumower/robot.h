@@ -158,6 +158,7 @@ enum {
   STATE_PERI_OUT_REV,   // outside perimeter reverse driving without checkPerimeterBoundary()
   STATE_PERI_OUT_ROLL,   // outside perimeter rolling driving without checkPerimeterBoundary()
   STATE_TILT_STOP,    // tilt sensor activated, stop motors, wait for un-tilt
+  STATE_BUMPER_STUCK, // Bumper is stuck, robot tends to go backward until outside perimeter
 };
 
 // roll types
@@ -331,8 +332,10 @@ class Robot
     char tiltUse       ;      // has tilt sensor?      
     boolean tilt;
     int bumperLeftCounter ;
+    unsigned long bumperLeftLastTime ;
     boolean bumperLeft ;          
     int bumperRightCounter ;
+    unsigned long bumperRightLastTime ;
     boolean bumperRight ;
     unsigned long nextTimeBumper ;
     // --------- drop state ---------------------------

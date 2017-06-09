@@ -46,7 +46,7 @@ Mower::Mower(){
   motorAccel                 = 1000;      // motor wheel acceleration - only functional when odometry is not in use (warning: do not set too low)
   motorSpeedMaxRpm           = 25;        // motor wheel max RPM (WARNING: do not set too high, so there's still speed control when battery is low!)
   motorSpeedMaxPwm           = 255;       // motor wheel max Pwm  (8-bit PWM=255, 10-bit PWM=1023)
-  motorPowerMax              = 75;        // motor wheel max power (Watt)	
+  motorPowerMax              = 20;        // motor wheel max power (Watt)	
   motorSenseRightScale       = ADC2voltage(1)*1905;   // ADC to right motor sense milliamp 
 	motorSenseLeftScale        = ADC2voltage(1)*1905;   // ADC to left motor sense milliamp 
 	motorPowerIgnoreTime       = 2000;      // time to ignore motor power (ms)
@@ -61,7 +61,7 @@ Mower::Mower(){
   motorBiDirSpeedRatio2      = 0.92;      // bidir mow pattern speed ratio 2
   
   // ---- normal control ---
-  motorLeftPID.Kp            = 1.5;       // motor wheel PID controller
+  motorLeftPID.Kp            = 1.3;       // motor wheel PID controller
   motorLeftPID.Ki            = 0.29;
   motorLeftPID.Kd            = 0.25;
   
@@ -77,8 +77,8 @@ Mower::Mower(){
   
   // ------ mower motor -------------------------------
   motorMowAccel              = 2000;       // motor mower acceleration (warning: do not set too low) 2000 seems to fit best considerating start time and power consumption 
-  motorMowSpeedMaxPwm        = 255;        // motor mower max PWM
-  motorMowPowerMax           = 75.0;       // motor mower max power (Watt)
+  motorMowSpeedMaxPwm        = 200;        // motor mower max PWM
+  motorMowPowerMax           = 50.0;       // motor mower max power (Watt)
   motorMowPowerThreshold     = 15.0;       // motor mower power (Watt) threshold to detect unmown areas
   motorMowModulate           = 0;          // motor mower cutter modulation?
   motorMowRPMSet             = 3300;       // motor mower RPM (only for cutter modulation)
@@ -179,7 +179,7 @@ Mower::Mower(){
     #endif  
   #endif
   
-  batFull                    = 29.4;      // battery reference Voltage (fully charged) PLEASE ADJUST IF USING A DIFFERENT BATTERY VOLTAGE! FOR a 12V SYSTEM TO 14.4V
+  batFull                    = 29.45;      // battery reference Voltage (fully charged) PLEASE ADJUST IF USING A DIFFERENT BATTERY VOLTAGE! FOR a 12V SYSTEM TO 14.4V
   batChargingCurrentMax      = 3.1;       // maximum current your charger can devliver  
   
   // ------  charging station ---------------------------
@@ -200,6 +200,9 @@ Mower::Mower(){
   odometryTicksPerCm         = ((float)odometryTicksPerRevolution) / (((float)wheelDiameter)/10.0) / (2*3.1415);    // computes encoder ticks per cm (do not change)
   odometryWheelBaseCm        = 36;         // wheel-to-wheel distance (cm)
   
+
+
+
   // ----- GPS -------------------------------------------
   gpsUse                     = 0;          // use GPS?
   stuckIfGpsSpeedBelow       = 0.2;        // if Gps speed is below given value the mower is stuck
@@ -264,6 +267,8 @@ ISR(PCINT0_vect){
       else
         robot.odometryLeft--;									// backward
     }
+
+
     if (setPins & 0b01000000)                  				// pin right has changed
     {
       if (robot.motorRightPWMCurr >= 0)
@@ -295,7 +300,7 @@ ISR(PCINT0_vect){
         								// backward
       oldOdoPins_A = actPins_A;
     }
-    
+
     //Left
     if (setPins_B & 0b00000000000000001000000000000000)         	// pin right has changed
     {
@@ -308,6 +313,10 @@ ISR(PCINT0_vect){
     }  
   }
 
+
+
+
+
 #endif
 
 // mower motor speed sensor interrupt
@@ -317,6 +326,8 @@ ISR(PCINT0_vect){
 NewPing NewSonarLeft(pinSonarLeftTrigger, pinSonarLeftEcho, 160);
 NewPing NewSonarRight(pinSonarRightTrigger, pinSonarRightEcho, 160);
 NewPing NewSonarCenter(pinSonarCenterTrigger, pinSonarCenterEcho, 160);
+
+
 
 
 // WARNING: never use 'Serial' in the Ardumower code - use 'Console' instead
@@ -335,6 +346,8 @@ void Mower::setup(){
   pinMode(pinBatterySwitch, OUTPUT);
   digitalWrite(pinBatterySwitch, HIGH);
   
+
+
   // LED, buzzer, battery
   pinMode(pinLED, OUTPUT);    
   pinMode(pinBuzzer, OUTPUT);    
@@ -345,6 +358,8 @@ void Mower::setup(){
   pinMode(pinChargeRelay, OUTPUT);
   setActuator(ACT_CHGRELAY, 0);
   
+
+
   // left wheel motor
   pinMode(pinMotorEnable, OUTPUT);  
   digitalWrite(pinMotorEnable, HIGH);
@@ -353,6 +368,8 @@ void Mower::setup(){
   pinMode(pinMotorLeftSense, INPUT);     
   pinMode(pinMotorLeftFault, INPUT);    
   
+
+
   // right wheel motor
   pinMode(pinMotorRightPWM, OUTPUT);
   pinMode(pinMotorRightDir, OUTPUT); 
@@ -455,6 +472,8 @@ void Mower::setup(){
     rc.initSerial(&Bluetooth, BLUETOOTH_BAUDRATE);
   }
 
+
+
 //-------------------------------------------------------------------------
 // enable interrupts
 //-------------------------------------------------------------------------
@@ -476,6 +495,8 @@ void Mower::setup(){
 	  PCMSK0 |= (1<<PCINT5);
 	  PCMSK0 |= (1<<PCINT6);
 	}
+
+
 	 
     //-------------------------------------------------------------------------    
     // odometry
@@ -493,6 +514,8 @@ void Mower::setup(){
 	  PCMSK2 |= (1<<PCINT20);
 	  PCMSK2 |= (1<<PCINT22);	  
 	}
+
+
 		
     //-------------------------------------------------------------------------	
     // mower motor speed sensor interrupt
@@ -502,6 +525,8 @@ void Mower::setup(){
 	  PCICR |= (1<<PCIE2);
 	  PCMSK2 |= (1<<PCINT19);
 	}
+
+
   #else
     // Due interrupts
 	// ODO
@@ -529,6 +554,8 @@ void checkMotorFault(){
     //digitalWrite(pinMotorEnable, LOW);
     //digitalWrite(pinMotorEnable, HIGH);
   }
+
+
   if  (digitalRead(pinMotorRightFault)==LOW){
     robot.addErrorCounter(ERR_MOTOR_RIGHT);
     //Console.println(F("Error: motor right fault"));
@@ -536,6 +563,8 @@ void checkMotorFault(){
     //digitalWrite(pinMotorEnable, LOW);
     //digitalWrite(pinMotorEnable, HIGH);
   }
+
+
   if (digitalRead(pinMotorMowFault)==LOW){  
     robot.addErrorCounter(ERR_MOTOR_MOW);
     //Console.println(F("Error: motor mow fault"));
@@ -543,6 +572,8 @@ void checkMotorFault(){
     //digitalWrite(pinMotorMowEnable, LOW);
     //digitalWrite(pinMotorMowEnable, HIGH);
   }
+
+
 }
 
 void Mower::resetMotorFault(){
@@ -571,6 +602,7 @@ int Mower::readSensor(char type){
     case SEN_MOTOR_RIGHT: checkMotorFault(); return ADCMan.read(pinMotorRightSense); break;
     case SEN_MOTOR_LEFT:  checkMotorFault(); return ADCMan.read(pinMotorLeftSense); break;
     //case SEN_MOTOR_MOW_RPM: break; // not used - rpm is upated via interrupt
+
 
 // perimeter----------------------------------------------------------------------------------------------
     case SEN_PERIM_LEFT: return perimeter.getMagnitude(0); break;
@@ -607,6 +639,8 @@ int Mower::readSensor(char type){
     case SEN_SONAR_LEFT: return(NewSonarLeft.ping_cm()); break;
     case SEN_SONAR_RIGHT: return(NewSonarRight.ping_cm()); break;    
     
+
+
     // case SEN_LAWN_FRONT: return(measureLawnCapacity(pinLawnFrontSend, pinLawnFrontRecv)); break;    
     //case SEN_LAWN_BACK: return(measureLawnCapacity(pinLawnBackSend, pinLawnBackRecv)); break;    
     
