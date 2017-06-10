@@ -792,6 +792,8 @@ void Robot::checkDrop(){                                                        
 // check bumpers while tracking perimeter
 void Robot::checkBumpersPerimeter(){
   if ((bumperLeft || bumperRight)) {    
+    motorLeftRpmCurr = motorRightRpmCurr = 0 ;
+    setMotorPWM( 0, 0, false );
     if ((bumperLeft) || (stateCurr == STATE_PERI_TRACK)) {
       setNextState(STATE_PERI_REV, RIGHT);          
     } else {
@@ -1411,6 +1413,7 @@ void Robot::loop()  {
       break;
     case STATE_PERI_REV:
       // perimeter tracking reverse
+      checkCurrent();
       if (millis() >= stateEndTime) setNextState(STATE_PERI_ROLL, rollDir);				               
       break;
     case STATE_PERI_FIND:
