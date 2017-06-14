@@ -1041,8 +1041,8 @@ void Robot::checkTimeout(){
   if (stateTime > motorForwTimeMax){ 
     // timeout 
     motorMowSenseErrorCounter = 0;
-    if (rollDir == RIGHT) setNextState(STATE_ROLL, RIGHT); // toggle roll dir
-      else setNextState(STATE_ROLL, LEFT);
+    if (rollDir == RIGHT) setNextState(STATE_ROLL, LEFT); // toggle roll dir
+      else setNextState(STATE_ROLL, RIGHT);
   }
 }
 
