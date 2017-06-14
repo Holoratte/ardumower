@@ -340,11 +340,11 @@ void Mower::setup(){
   
   
   Buzzer.begin();
-	Console.begin(CONSOLE_BAUDRATE);  
-	I2Creset();	
-  Wire.begin();            
+	Console.begin(CONSOLE_BAUDRATE);              
 	PinMan.begin();    
 	ADCMan.init();
+  I2Creset();	
+  Wire.begin();
   Console.println("SETUP");
 
 
