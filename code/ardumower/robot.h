@@ -338,6 +338,7 @@ class Robot
     unsigned long bumperRightLastTime ;
     boolean bumperRight ;
     unsigned long nextTimeBumper ;
+    unsigned long bumperStuckTime;
     // --------- drop state ---------------------------
     // bumper state (true = pressed)                                                                                                  // Dropsensor - Absturzsensor vorhanden ?
     char dropUse       ;      // has drops?                                                                                           // Dropsensor - Absturzsensor Zähler links

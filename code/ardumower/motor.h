@@ -68,7 +68,7 @@ void Robot::setMotorMowRPMState(boolean motorMowRpmState){
 // calculate map position by odometry sensors
 void Robot::calcOdometry(){
   if ((!odometryUse) || (millis() < nextTimeOdometry)) return;    
-    nextTimeOdometry = millis() + 300;
+    nextTimeOdometry = millis() + 200;
 
   static int lastOdoLeft = 0;
   static int lastOdoRight = 0;

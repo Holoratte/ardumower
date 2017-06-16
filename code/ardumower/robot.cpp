@@ -119,9 +119,10 @@ Robot::Robot(){
   bumperLeftCounter = bumperRightCounter = 0;
   bumperLeft = bumperRight = false;   
   bumperLeftLastTime = bumperRightLastTime = 0;        
-   
-   dropLeftCounter = dropRightCounter = 0;                                                                                              // Dropsensor - Absturzsensor
-   dropLeft = dropRight = false;                                                                                                        // Dropsensor - Absturzsensor
+  bumperStuckTime = 0;
+  
+  dropLeftCounter = dropRightCounter = 0;                                                                                              // Dropsensor - Absturzsensor
+  dropLeft = dropRight = false;                                                                                                        // Dropsensor - Absturzsensor
   
   gpsLat = gpsLon = gpsX = gpsY = 0;
   robotIsStuckCounter = 0;
@@ -507,14 +508,14 @@ void Robot::readSensors(){
     tilt = (readSensor(SEN_TILT) == 0);
         
     if (readSensor(SEN_BUMPER_LEFT) == 0) {
-      bumperLeftCounter++;
+      if (!bumperLeft) bumperLeftCounter++;
       bumperLeft=true;
-    }
-
+    }else   bumperLeft = false;     
+    
     if (readSensor(SEN_BUMPER_RIGHT) == 0) {
-      bumperRightCounter++;
+      if (!bumperRight) bumperRightCounter++;
       bumperRight=true;
-    } 
+    } else bumperRight = false;
   }
 
 
@@ -1471,12 +1472,12 @@ void Robot::loop()  {
     case STATE_PERI_OUT_ROLL: 
       if (millis() >= stateEndTime){
         if (perimeterInside) setNextState(STATE_FORWARD,rollDir);  
-        else {
-          Debug.println("PERI_OUT_ROLL Perimeter not inside");
+        //else {
+          //Debug.println("PERI_OUT_ROLL Perimeter not inside");
           //Debug.println("Error: perimeter too far away");
           //addErrorCounter(ERR_PERIMETER_TIMEOUT);
 					//setNextState(STATE_ERROR, 0);
-        }
+        //}
       }
       break;
 
@@ -1505,9 +1506,20 @@ void Robot::loop()  {
       if (millis() >= stateEndTime) setNextState(STATE_FORWARD,0);				        
       break;
     case STATE_BUMPER_STUCK:
-      Debug.println("error: bumper is stuck");
-      addErrorCounter(ERR_STUCK);
-      setNextState(STATE_ERROR,0);
+      if (bumperStuckTime == 0){
+        bumperStuckTime = millis();
+        Debug.println("Bumper is stuck");
+      } 
+      if ((millis() - bumperStuckTime)>= 60000){      //ERROR after 1 min bumperStuck
+        Debug.println("error: bumper is stuck more than 1min");
+        addErrorCounter(ERR_STUCK);
+        setNextState(STATE_ERROR,0);
+      }else if ((!bumperLeft) && (!bumperRight)){
+        Debug.println("STATE_BUMPER_STUCK: Bumper is free again");
+        setNextState(STATE_ROLL,rollDir);
+        bumperStuckTime = 0;
+      }
+      
       break;
   } // end switch  
       
@@ -1529,8 +1541,7 @@ void Robot::loop()  {
   if (stateCurr != STATE_REMOTE) motorMowSpeedPWMSet = motorMowSpeedMaxPwm;
     
     
-  bumperRight = false;
-  bumperLeft = false;     
+
   
   dropRight = false;                                                                                                                             // Dropsensor - Absturzsensor
   dropLeft = false;                                                                                                                              // Dropsensor - Absturzsensor
