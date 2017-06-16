@@ -1370,12 +1370,7 @@ void Robot::loop()  {
         if (abs(distancePI(imu.ypr.yaw, imuRollHeading)) < PI/36) setNextState(STATE_FORWARD,0);				        
       } else {
         if (millis() >= stateEndTime) {
-			    if (perimeterInside) setNextState(STATE_FORWARD,rollDir);  
-          else {
-            Debug.println("Error: perimeter too far away");
-            addErrorCounter(ERR_PERIMETER_TIMEOUT);
-					  setNextState(STATE_ERROR, 0);
-          }	          
+			setNextState(STATE_FORWARD, rollDir); 	          
         }        
       }
       break;
