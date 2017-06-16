@@ -836,12 +836,13 @@ void Robot::checkPerimeterBoundary(){
       if (perimeterTriggerTime != 0) {
         if (millis() >= perimeterTriggerTime){ 
           perimeterTriggerTime = 0;
+          motorLeftRpmCurr = motorRightRpmCurr = 0 ;
           setMotorPWM( 0, 0, false );
           //if ((rand() % 2) == 0){
           if (rotateLeft){    
-          setNextState(STATE_PERI_OUT_REV, LEFT);
+          setNextState(STATE_PERI_OUT_ROLL, RIGHT);
           } else {
-          setNextState(STATE_PERI_OUT_REV, RIGHT);
+          setNextState(STATE_PERI_OUT_ROLL, LEFT);
           }  
         }
       }
@@ -1468,7 +1469,14 @@ void Robot::loop()  {
       if (perimeterInside || (millis() >= stateEndTime)) setNextState (STATE_PERI_OUT_ROLL, rollDir); 
       break;
     case STATE_PERI_OUT_ROLL: 
-      if (millis() >= stateEndTime) setNextState(STATE_FORWARD,rollDir);                
+      if (millis() >= stateEndTime){
+        if (perimeterInside) setNextState(STATE_FORWARD,rollDir);  
+        else {
+          Debug.println("Error: perimeter too far away");
+          addErrorCounter(ERR_PERIMETER_TIMEOUT);
+					setNextState(STATE_ERROR, 0);
+        }
+      }
       break;
 
     case STATE_STATION_CHECK:
