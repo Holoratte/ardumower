@@ -125,10 +125,10 @@ void Robot::setMotorPWM(int pwmLeft, int pwmRight, boolean useAccel){
        ((pwmRight > 0) && (motorRightPWMCurr <= 0)) ) { // changing direction should take place?    
     if (motorRightZeroTimeout != 0) // reduce motor rotation? (will reduce EMF)      
       pwmRight = motorRightPWMCurr - motorRightPWMCurr *   ((float)TaC)/200.0;  // reduce speed
-  }
-
+  }else {
   motorLeftPWMCurr = pwmLeft;
   motorRightPWMCurr = pwmRight;
+  }
 
   if (odometryUse){
     if (abs(motorLeftRpmCurr) <1) motorLeftZeroTimeout = max(0, ((int)(motorLeftZeroTimeout - TaC)) );
