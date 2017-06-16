@@ -1472,9 +1472,10 @@ void Robot::loop()  {
       if (millis() >= stateEndTime){
         if (perimeterInside) setNextState(STATE_FORWARD,rollDir);  
         else {
-          Debug.println("Error: perimeter too far away");
-          addErrorCounter(ERR_PERIMETER_TIMEOUT);
-					setNextState(STATE_ERROR, 0);
+          Debug.println("PERI_OUT_ROLL Perimeter not inside");
+          //Debug.println("Error: perimeter too far away");
+          //addErrorCounter(ERR_PERIMETER_TIMEOUT);
+					//setNextState(STATE_ERROR, 0);
         }
       }
       break;
