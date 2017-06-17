@@ -699,7 +699,7 @@ void Robot::checkCurrent(){
       motorMowSenseCounter = 0;
       if (millis() >= lastTimeMotorMowStuck + 30000){ // wait 30 seconds before switching on again
         errorCounter[ERR_MOW_SENSE] = 0;
-        motorMowEnable = true;
+        if (!motorMowEnableOverride) motorMowEnable = true;
       }
   }
 
