@@ -546,9 +546,14 @@ void RemoteControl::sendPerimeterMenu(boolean update){
   sendSlider("e17", F("Perimeter tracking reverse time"), robot->perimeterTrackRevTime, "", 1, 8000); 
   sendSlider("e11", F("Transition timeout"), robot->trackingPerimeterTransitionTimeOut, "", 1, 10000);
   sendSlider("e12", F("Track error timeout"), robot->trackingErrorTimeOut, "", 1, 10000);             
+  sendSlider("e18", F("Tracking Max Speed PWM"), robot->MaxSpeedperiPwm, "", 1, 255);
+  sendSlider("e19", F("Tracking Mag Setpoint"), robot->trackMagSetpoint, "", 0.01, 1.0, 0.0);
+  sendSlider("e20", F("Tracking PWM divider"), robot->periTrackDivider, "", 0.1, 3, 1.2);
   sendPIDSlider("e07", F("Track"), robot->perimeterPID, 0.1, 100);  
   //serialPort->print(F("|e09~Use differential signal "));
   //sendYesNo(robot->perimeter.useDifferentialPerimeterSignal);    
+  serialPort->print(F("|e21~Track only inside perimeter EXPERIMENTAL "));
+  sendYesNo(robot->trackInsidePerimeterOnly);
   serialPort->print(F("|e10~Swap coil polarity "));
   sendYesNo(robot->perimeter.swapCoilPolarity);
   serialPort->print(F("|e13~Block inner wheel  "));
@@ -570,8 +575,13 @@ void RemoteControl::processPerimeterMenu(String pfodCmd){
     else if (pfodCmd.startsWith("e10")) robot->perimeter.swapCoilPolarity = !robot->perimeter.swapCoilPolarity;
     else if (pfodCmd.startsWith("e11")) processSlider(pfodCmd, robot->trackingPerimeterTransitionTimeOut, 1);
     else if (pfodCmd.startsWith("e12")) processSlider(pfodCmd, robot->trackingErrorTimeOut, 1);
-    else if (pfodCmd.startsWith("e13")) robot->trackingBlockInnerWheelWhilePerimeterStruggling = !robot->trackingBlockInnerWheelWhilePerimeterStruggling;          
-    else if (pfodCmd.startsWith("e14")) processSlider(pfodCmd, robot->perimeter.timeOutSecIfNotInside, 1);     
+    else if (pfodCmd.startsWith("e13")) robot->trackingBlockInnerWheelWhilePerimeterStruggling = !robot->trackingBlockInnerWheelWhilePerimeterStruggling; 
+    else if (pfodCmd.startsWith("e21")) robot->trackInsidePerimeterOnly = !robot->trackInsidePerimeterOnly;         
+    else if (pfodCmd.startsWith("e14")) processSlider(pfodCmd, robot->perimeter.timeOutSecIfNotInside, 1);
+    else if (pfodCmd.startsWith("e18")) processSlider(pfodCmd, robot->MaxSpeedperiPwm, 1);
+    else if (pfodCmd.startsWith("e19")) processSlider(pfodCmd, robot->trackMagSetpoint, 0.01);
+    else if (pfodCmd.startsWith("e20")) processSlider(pfodCmd, robot->periTrackDivider, 0.1);
+ 
   sendPerimeterMenu(true);
 }
 
@@ -1110,6 +1120,8 @@ void RemoteControl::processManualMenu(String pfodCmd){
   } else if (pfodCmd == "nm"){
     // manual: mower ON/OFF
     robot->motorMowEnable = !robot->motorMowEnable;            
+    if (!robot->motorMowEnable) robot->motorMowEnableOverride = true;
+    else robot->motorMowEnableOverride = false;
     sendManualMenu(true);
   } else if (pfodCmd == "ns"){
     // manual: stop

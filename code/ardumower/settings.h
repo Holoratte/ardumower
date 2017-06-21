@@ -150,6 +150,10 @@ void Robot::loadSaveUserSettings(boolean readflag){
   eereadwrite(readflag, addr, motorSpiralStartTimeMin);
   eereadwrite(readflag, addr, motorSpiralFactor);
   eereadwrite(readflag, addr, motorMowPowerThreshold);
+  eereadwrite(readflag, addr, MaxSpeedperiPwm);
+  eereadwrite(readflag, addr, trackMagSetpoint);
+  eereadwrite(readflag, addr, periTrackDivider);
+  eereadwrite(readflag, addr, trackInsidePerimeterOnly);
   Console.print(F("loadSaveUserSettings addrstop="));
   Console.println(addr);
 }
@@ -304,7 +308,16 @@ void Robot::printSettingSerial(){
   Console.println(trackingErrorTimeOut);
   Console.print  (F("trackingBlockInnerWheelWhilePerimeterStruggling : "));
   Console.println(trackingBlockInnerWheelWhilePerimeterStruggling,1);
+  Console.print  (F("MaxSpeedperiPwm                            : "));
+  Console.println(MaxSpeedperiPwm);
+  Console.print  (F("trackMagSetpoint                           : "));
+  Console.println(trackMagSetpoint);
+  Console.print  (F("periTrackDivider                           : "));
+  Console.println(periTrackDivider);
+  Console.print  (F("trackInsidePerimeterOnly                   : "));
+  Console.println(trackInsidePerimeterOnly);
 
+  
   // ------ lawn sensor -----------------------------------------------------------
   Console.println(F("---------- lawn sensor ---------------------------------------"));
   Console.print  (F("lawnSensorUse                              : "));

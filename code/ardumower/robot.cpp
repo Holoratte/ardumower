@@ -133,6 +133,12 @@ Robot::Robot(){
   
   perimeterMag = 1;
   perimeterMagMedian.add(perimeterMag);
+  MaxSpeedperiPwm = 200;
+  trackMagSetpoint = 1.0;
+  periTrackDivider = 1.7;
+  trackInsidePerimeterOnly = 0;
+  perimeterMagMedianInside.add(perimeterMag);
+  int perimeterMagMax = 1000;
   lastPerimeterTrackInside = 1;
   perimeterInside = true;
   perimeterCounter = 0;  
@@ -393,10 +399,11 @@ void Robot::readSensors(){
 
 
   if ((perimeterUse) && (millis() >= nextTimePerimeter)){  
-	  if ((stateCurr == STATE_PERI_TRACK) || (stateCurr == STATE_PERI_FIND)) { 
+	  if ((stateCurr == STATE_PERI_TRACK) || (stateCurr == STATE_PERI_FIND)) {      
       nextTimePerimeter = millis() +  30; // 30 
       perimeterMag = readSensor(SEN_PERIM_LEFT);
       perimeterMagMedian.add(abs(perimeterMag));
+      if (trackInsidePerimeterOnly) perimeterMagMedianInside.add(perimeterMag);
 	  }
     else {
       nextTimePerimeter = millis() +  50; // 50 
@@ -862,8 +869,8 @@ void Robot::checkPerimeterFind(){
       }
     } else {
       // we are outside, now roll to get inside
-      motorRightSpeedRpmSet = -motorSpeedMaxRpm / 1.5;
-      motorLeftSpeedRpmSet  = motorSpeedMaxRpm / 1.5;
+      motorRightSpeedRpmSet = -motorSpeedMaxRpm / 3;
+      motorLeftSpeedRpmSet  = motorSpeedMaxRpm / 3;
     }
   }
 }
@@ -1217,6 +1224,9 @@ void Robot::setNextState(byte stateNew, byte dir){
   }
   if (stateNew == STATE_PERI_TRACK){        
     //motorMowEnable = false;     // FIXME: should be an option?
+    perimeterMagMax = perimeterMagMedian.getHighest();
+    Debug.print("perimeterMagMax = ");
+    Debug.println(perimeterMagMax);
     setActuator(ACT_CHGRELAY, 0);
     perimeterPID.reset();
     //beep(6);

@@ -372,6 +372,12 @@ class Robot
     PID perimeterPID ;             // perimeter PID controller
     int perimeterMag ;             // perimeter magnitude
     RunningMedian perimeterMagMedian = RunningMedian(300);
+    RunningMedian perimeterMagMedianInside = RunningMedian(7); //for trackInsideOnly
+    int perimeterMagMax; // Maximum perimeterMag
+    int MaxSpeedperiPwm; // perimeter tracking max PWM
+    float trackMagSetpoint; // perimeter tracking Setpoint (perimeterMag normalized to 1.0) usually 0.0-1.0
+    float periTrackDivider; //divider perimeter tracking motor control
+    char trackInsidePerimeterOnly; //track only inside perimeter
     boolean lastPerimeterTrackInside; // was inside or outside
     boolean perimeterInside ;      // is inside perimeter?
     unsigned long perimeterTriggerTime; // time to trigger perimeter transition (timeout)
