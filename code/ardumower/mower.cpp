@@ -122,7 +122,7 @@ Mower::Mower(){
   trackingErrorTimeOut                            = 10000;
   trackingBlockInnerWheelWhilePerimeterStruggling = 1;
   
-  MaxSpeedperiPwm            = 200;  // perimeter tracking max PWM
+  MaxSpeedperiPwm            = 255;  // perimeter tracking max PWM
   trackMagSetpoint           = 1.0;  // perimeter tracking Setpoint (perimeterMag normalized to 1.0) usually 0.0-1.0
   periTrackDivider           = 1.7;  //divider perimeter tracking motor control
   trackInsidePerimeterOnly   = 0;    //tracking Inside perimter only
@@ -145,21 +145,21 @@ Mower::Mower(){
   
   // ------ battery -------------------------------------
   batMonitor                 = 1;          // monitor battery and charge voltage?
-  batGoHomeIfBelow           = 23.7;       // drive home voltage (Volt)
-  batSwitchOffIfBelow        = 21.7;       // switch off battery if below voltage (Volt)
+  batGoHomeIfBelow           = 24.6;       // drive home voltage (Volt)
+  batSwitchOffIfBelow        = 23.7;       // switch off battery if below voltage (Volt)
 		
   #if defined (PCB_1_2)     // PCB 1.2	  
-	  batSwitchOffIfIdle         = 5;          // switch off battery if idle (minutes, 0=off) 	
+	  batSwitchOffIfIdle         = 8;          // switch off battery if idle (minutes, 0=off) 	
 		startChargingIfBelow       = 27;      // start charging if battery Voltage is below
 		chargingTimeout            = 12600000;  // safety timer for charging (ms) 12600000 = 3.5hrs
 		batFullCurrent             = 0.3;       // current flowing when battery is fully charged	 (amp)
-		batFactor                  = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor	*10
-		batChgFactor               = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor *10
-		chgFactor                  = ADC2voltage(1)*10;        // ADC to charging current ampere factor *10
+		//batFactor                  = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor	*10
+		//batChgFactor               = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor *10
+		//chgFactor                  = ADC2voltage(1)*10;        // ADC to charging current ampere factor *10
     #ifdef __AVR__         // Mega
-			//batFactor                = 0.495;      // voltage = ADC * batFactor / 10     
-      //batChgFactor             = 0.495;      // voltage = ADC * batFactor / 10  
-			//chgFactor                = 0.045;         // INA169 charge current conversion factor  Ampere = ADC * chgFactor / 10
+			batFactor                = 0.494;      // voltage = ADC * batFactor / 10     
+      batChgFactor             = 0.494;      // voltage = ADC * batFactor / 10  
+			chgFactor                = 0.045;         // INA169 charge current conversion factor  Ampere = ADC * chgFactor / 10
     #else                  // Due
       //batFactor                = 0.3267;      // voltage = ADC * batFactor / 10   
       //batChgFactor             = 0.3267;      // voltage = ADC * batFactor / 10
@@ -197,7 +197,7 @@ Mower::Mower(){
   odometryUse                = 1;          // use odometry?  
   wheelDiameter              = 250;        // wheel diameter (mm)
   #if defined (PCB_1_2)
-    odometryTicksPerRevolution = 1060*2;       // encoder ticks per one full resolution    
+    odometryTicksPerRevolution = 2200;       // encoder ticks per one full resolution    
   #elif defined (PCB_1_3)    
 		#define DIVIDER_DIP_SWITCH  2             //  sets used PCB odometry divider (2=DIV/2, 4=DIV/4, 8=DIV/8, etc.) 
 		odometryTicksPerRevolution = 1060/DIVIDER_DIP_SWITCH*2;        // encoder ticks per one full resolution 
