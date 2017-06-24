@@ -51,7 +51,7 @@ Perimeter::Perimeter(){
     lastValue = value;
   }  
 	swapCoilPolarity = false;
-  timedOutIfBelowSmag = 300;
+  timedOutIfBelowSmag = 250;
   timeOutSecIfNotInside = 8;
   callCounter = 0;
   mag[0] = mag[1] = 0;

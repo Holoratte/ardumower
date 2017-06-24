@@ -605,6 +605,7 @@ void Robot::readSensors(){
 
 void Robot::setDefaults(){
   motorLeftSpeedRpmSet = motorRightSpeedRpmSet = 0;    
+  MotorLeftPWMCurr = motorRightPWMCurr = 0;
   motorMowEnable = false;                
 }
 
