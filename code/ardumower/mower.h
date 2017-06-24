@@ -140,8 +140,8 @@
   #define Console Serial
   #define ESP8266port Serial1
   #define Bluetooth Serial2
-  #define Debug Console
-  //#define Debug Bluetooth
+  //#define Debug Console
+  #define Debug Bluetooth
   //#define Debug ESP8266port
 #else 
   // Arduino Due  
