@@ -5,6 +5,7 @@
   Copyright (c) 2014 by Maxime Carpentieri    
   Copyright (c) 2014-2015 by Stefan Manteuffel
   Copyright (c) 2015 by Uwe Zimprich
+  Copyright (c) 2017 by Jürgen Lange
   
   Private-use only! (you need to ask for a commercial-use)
  
@@ -30,12 +31,14 @@
 #include <Arduino.h>
 #include <Wire.h>
 //#include <Servo.h>
-#ifdef __AVR__
+#ifdef __AVR_ATmega2560__
   // Arduino Mega
   #include <EEPROM.h>
-#else 
-  // Arduino Due
+#elif __SAM3X8E__
+	// Arduino Due
   #include "due.h"
+#else
+  #error "Wrong Arduino board - Choose Arduino Mega or Arduino Due in Arduino IDE"
 #endif
 #include "config.h"
 

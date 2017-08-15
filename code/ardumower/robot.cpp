@@ -35,7 +35,7 @@
 #define ADDR_ROBOT_STATS 800
 
 const char* stateNames[] ={"OFF ", "RC  ", "FORW", "ROLL", "REV ", "CIRC", "ERR ", "PFND", "PTRK", "PROL", "PREV", "STAT", "CHARG", "STCHK",
-  "STREV", "STROL", "STFOR", "MANU", "ROLW", "POUTFOR", "POUTREV", "POUTROLL", "TILT"};
+  "STREV", "STROL", "STFOR", "MANU", "ROLW", "POUTFOR", "POUTREV", "POUTROLL", "TILT", "BUMPREV", "BUMPFORW"};
 
 const char* sensorNames[] ={"SEN_PERIM_LEFT", "SEN_PERIM_RIGHT", "SEN_PERIM_LEFT_EXTRA", "SEN_PERIM_RIGHT_EXTRA", "SEN_LAWN_FRONT", "SEN_LAWN_BACK", 
 	"SEN_BAT_VOLTAGE", "SEN_CHG_CURRENT", "SEN_CHG_VOLTAGE", "SEN_MOTOR_LEFT", "SEN_MOTOR_RIGHT", "SEN_MOTOR_MOW", "SEN_BUMPER_LEFT", "SEN_BUMPER_RIGHT", 
@@ -474,8 +474,8 @@ void Robot::readSensors(){
 
 
  if ((sonarUse) && (millis() >= nextTimeSonar)){
-    static char senSonarTurn = SEN_SONAR_RIGHT;    
-    nextTimeSonar = millis() + 80;
+    static char senSonarTurn = SEN_SONAR_CENTER;    
+    nextTimeSonar = millis() + 250;
     
     switch(senSonarTurn) {
       case SEN_SONAR_RIGHT:
@@ -491,7 +491,7 @@ void Robot::readSensors(){
         senSonarTurn = SEN_SONAR_RIGHT;
         break;
       default:
-        senSonarTurn = SEN_SONAR_RIGHT;
+        senSonarTurn = SEN_SONAR_CENTER;
         break;
     }   
 /*
@@ -647,14 +647,36 @@ void Robot::receiveGPSTime(){
 }
 
 
-void Robot::reverseOrBidir(byte aRollDir){
-  if (mowPatternCurr == MOW_BIDIR){
-    if (stateCurr == STATE_FORWARD) {      
-      setNextState(STATE_REVERSE, RIGHT);     
+void Robot::reverseOrBidir(byte aRollDir) {
+  if (mowPatternCurr == MOW_BIDIR) {
+    if (stateCurr == STATE_FORWARD) {
+      setNextState(STATE_REVERSE, RIGHT);
     } else if (stateCurr == STATE_REVERSE) {
       setNextState(STATE_FORWARD, LEFT);
     }
-  } else setNextState(STATE_REVERSE, aRollDir);
+  } else {
+    if (stateCurr == STATE_FORWARD) {
+      setNextState(STATE_REVERSE, aRollDir);
+    } else {
+      setNextState(STATE_FORWARD, aRollDir);
+    }
+  }
+}
+
+void Robot::reverseOrBidirBumper(byte aRollDir) {
+  if (mowPatternCurr == MOW_BIDIR) {
+    if (stateCurr == STATE_FORWARD) {
+      setNextState(STATE_REVERSE, RIGHT);
+    } else if (stateCurr == STATE_REVERSE) {
+      setNextState(STATE_FORWARD, LEFT);
+    }
+  } else {
+    if (stateCurr == STATE_FORWARD) {
+      setNextState(STATE_BUMPER_REVERSE, aRollDir);
+    } else if (stateCurr == STATE_REVERSE) {
+      setNextState(STATE_BUMPER_FORWARD, aRollDir);
+    }
+  }
 }
 
 // check motor current
@@ -760,9 +782,9 @@ void Robot::checkBumpers(){
 
   if ((bumperLeft || bumperRight)) {    
       if (bumperLeft) {
-        reverseOrBidir(RIGHT);          
+        reverseOrBidirBumper(RIGHT);          
       } else {
-        reverseOrBidir(LEFT);
+        reverseOrBidirBumper(LEFT);
       }    
   }  
 }
@@ -878,9 +900,11 @@ void Robot::checkRain(){
 void Robot::checkSonar(){
   if(!sonarUse) return;
   if (millis() < nextTimeCheckSonar) return;
-  nextTimeCheckSonar = millis() + 200;
+  nextTimeCheckSonar = millis() + 500;
   if ((mowPatternCurr == MOW_BIDIR) && (millis() < stateStartTime + 4000)) return;
-
+  if (sonarDistCenter < 11 || sonarDistCenter > 100) sonarDistCenter = NO_ECHO; // Objekt ist zu nah am Sensor Wert ist unbrauchbar
+  if (sonarDistRight < 11 || sonarDistRight > 100) sonarDistRight = NO_ECHO; // Object is too close to the sensor. Sensor value is useless
+  if (sonarDistLeft < 11 || sonarDistLeft  > 100) sonarDistLeft = NO_ECHO; // Filters spiks under the possible detection limit
   // slow down motor wheel speed near obstacles   
   if (     (stateCurr == STATE_FORWARD) 
           || (  (mowPatternCurr == MOW_BIDIR) && ((stateCurr == STATE_FORWARD) || (stateCurr == STATE_REVERSE))  )  
@@ -1147,7 +1171,15 @@ void Robot::setNextState(byte stateNew, byte dir){
     motorLeftSpeedRpmSet = motorRightSpeedRpmSet = -motorSpeedMaxRpm/1.25;                    
     stateEndTime = millis() + motorReverseTime + motorZeroSettleTime;
   }   
-  else if (stateNew == STATE_ROLL) {                  
+	else if (stateNew == STATE_BUMPER_REVERSE)  {
+    motorLeftSpeedRpmSet = motorRightSpeedRpmSet = -motorSpeedMaxRpm / 1.25;
+    stateEndTime = millis() + motorReverseTime + motorZeroSettleTime;
+  }
+  else if (stateNew == STATE_BUMPER_FORWARD)  {
+    motorLeftSpeedRpmSet = motorRightSpeedRpmSet = motorSpeedMaxRpm / 1.25;
+    stateEndTime = millis() + motorReverseTime + motorZeroSettleTime;
+  }  
+	else if (stateNew == STATE_ROLL) {                  
       imuDriveHeading = scalePI(imuDriveHeading + PI); // toggle heading 180 degree (IMU)
       if (imuRollDir == LEFT){
         imuRollHeading = scalePI(imuDriveHeading - PI/20);        
@@ -1385,6 +1417,56 @@ void Robot::loop()  {
       } else {        
         if (millis() >= stateEndTime) {
           setNextState(STATE_ROLL, rollDir);				                         
+        }
+      }
+      break;
+    case STATE_BUMPER_FORWARD:
+      // driving forward
+      if (mowPatternCurr == MOW_BIDIR) {
+        double ratio = motorBiDirSpeedRatio1;
+        if (stateTime > 4000) ratio = motorBiDirSpeedRatio2;
+        if (rollDir == RIGHT) motorRightSpeedRpmSet = ((double)motorLeftSpeedRpmSet) * ratio;
+        else motorLeftSpeedRpmSet = ((double)motorRightSpeedRpmSet) * ratio;
+      } else {
+        if (millis() >= stateEndTime) {
+          setNextState(STATE_ROLL, rollDir);
+        }
+      }
+      checkErrorCounter();
+      checkTimer();
+      checkRain();
+      checkCurrent();
+      checkBumpers();
+      checkDrop();                                                                                                                            // Dropsensor - Absturzsensor
+      checkSonar();
+      checkPerimeterBoundary();
+      checkLawn();
+      checkTimeout();
+      break;
+    case STATE_BUMPER_REVERSE:
+      // driving reverse
+      checkErrorCounter();
+      checkTimer();
+      checkCurrent();
+      checkBumpers();
+      checkDrop();                                                                                                                            // Dropsensor - Absturzsensor
+      //checkSonar();
+      checkPerimeterBoundary();
+      checkLawn();
+
+      if (mowPatternCurr == MOW_BIDIR) {
+        double ratio = motorBiDirSpeedRatio1;
+        if (stateTime > 4000) ratio = motorBiDirSpeedRatio2;
+        if (rollDir == RIGHT) motorRightSpeedRpmSet = ((double)motorLeftSpeedRpmSet) * ratio;
+        else motorLeftSpeedRpmSet = ((double)motorRightSpeedRpmSet) * ratio;
+        if (stateTime > motorForwTimeMax) {
+          // timeout
+          if (rollDir == RIGHT) setNextState(STATE_FORWARD, LEFT); // toggle roll dir
+          else setNextState(STATE_FORWARD, RIGHT);
+        }
+      } else {
+        if (millis() >= stateEndTime) {
+          setNextState(STATE_ROLL, rollDir);
         }
       }
       break;
