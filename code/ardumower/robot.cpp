@@ -1353,10 +1353,10 @@ void Robot::loop()  {
       }             
 	  if (lastSetSpiralStartTime >= stateStartTime + motorSpiralStartTimeMin) {
 		  if (rollDir == RIGHT){
-		 motorRightSpeedRpmSet = motorSpeedMaxRpm*(1.0/(1.0+(float)motorSpiralFactor/(float)(millis()-lastSetSpiralStartTime)));
+		    motorRightSpeedRpmSet = motorSpeedMaxRpm*(1.0/(1.0+(float)motorSpiralFactor/(float)(millis()-lastSetSpiralStartTime -5000)));
 		  }
 		  else{
-		 motorLeftSpeedRpmSet = motorSpeedMaxRpm*(1.0/(1.0+(float)motorSpiralFactor/(float)(millis()-lastSetSpiralStartTime)));
+        motorLeftSpeedRpmSet = motorSpeedMaxRpm*(1.0/(1.0+(float)motorSpiralFactor/(float)(millis()-lastSetSpiralStartTime - 5000)));
 		  }
 	  }
       checkErrorCounter();    
