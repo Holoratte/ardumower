@@ -51,6 +51,7 @@ const char* consoleModeNames[] ={"sen_counters", "sen_values", "perimeter", "off
 #include "battery.h"
 #include "consoleui.h"
 #include "motor.h"
+#include "buzzer.h"
 #include "modelrc.h"
 #include "settings.h"
 #include "timer.h"
@@ -166,6 +167,7 @@ Robot::Robot(){
   memset(errorCounter, 0, sizeof errorCounterMax);
     
   loopsPerSec = 0;
+	loopsPerSecLowCounter = 0;
   loopsTa = 5.0;
   loopsPerSecCounter = 0;
   buttonCounter = 0;
@@ -183,7 +185,7 @@ Robot::Robot(){
   nextTimeDrop = 0;                                                                                                                    // Dropsensor - Absturzsensor
   nextTimeSonar = 0;
   nextTimeBattery = 0;
-  nextTimeCheckBattery = 0;
+  nextTimeCheckBattery = millis() + 10000;
   nextTimePerimeter = 0;
   nextTimeLawnSensor = 0;
   nextTimeLawnSensorCheck = 0;
@@ -538,8 +540,10 @@ void Robot::readSensors(){
   if ((timerUse) && (millis() >= nextTimeRTC)) {
     nextTimeRTC = millis() + 60000;    
     readSensor(SEN_RTC);       // read RTC             
-    Console.print(F("RTC date received: "));
-    Console.println(date2str(datetime.date));  
+    Console.print(F("RTC datetime received: "));
+    Console.print(date2str(datetime.date));  
+		Console.print(F("  "));  
+		Console.println(time2str(datetime.time));  
   }
 
   
@@ -574,6 +578,11 @@ void Robot::readSensors(){
     double batvolt = ((double)batADC) * batFactor / 10;  // / 10 due to arduremote bug, can be removed after fixing    
     double chgvolt = ((double)chgADC) * batChgFactor / 10;  // / 10 due to arduremote bug, can be removed after fixing    
 		double curramp = ((double)currentADC) * chgFactor / 10;  // / 10 due to arduremote bug, can be removed after fixing		
+
+    #if defined (PCB_1_3)         // Prüfe ob das V1.3 Board verwendet wird - und wenn ja **UZ**
+    batvolt = batvolt + DiodeD9;  // dann rechnet zur Batteriespannung den Spannungsabfall der Diode D9 hinzu. (Spannungsabfall an der Diode D9 auf den 1.3 Board (Die Spannungsanzeige ist zu niedrig verursacht durch die Diode D9) **UZ**
+    #endif                        // **UZ**
+    
     // low-pass filter
     double accel = 0.01;
 		//double accel = 1.0;
@@ -1297,7 +1306,17 @@ void Robot::loop()  {
       else setActuator(ACT_LED, LOW);        */
     //checkErrorCounter();  
     if (stateCurr == STATE_REMOTE) printRemote();    
-    loopsPerSec = loopsPerSecCounter;
+    loopsPerSec = loopsPerSecCounter;					
+		if (stateCurr != STATE_ERROR){		
+			if (loopsPerSec < 10) { // loopsPerSec too low
+				if (loopsPerSecLowCounter < 255) loopsPerSecLowCounter++;
+			} else if (loopsPerSecLowCounter > 0) loopsPerSecLowCounter--; // loopsPerSec OK
+			if (loopsPerSecLowCounter > 10) { // too long I2C cables can be a reason for this
+				Console.println(F("Error: loopsPerSec too low (check I2C cables)"));
+				addErrorCounter(ERR_CPU_SPEED);
+				setNextState(STATE_ERROR,0);    //mower is switched into ERROR
+			}
+		} else loopsPerSecLowCounter = 0; // reset counter to zero
     if (loopsPerSec > 0) loopsTa = 1000.0 / ((double)loopsPerSec);    
     loopsPerSecCounter = 0;    
   }   
@@ -1586,6 +1605,7 @@ void Robot::loop()  {
                              
   loopsPerSecCounter++;  
 }
+
 
 
 

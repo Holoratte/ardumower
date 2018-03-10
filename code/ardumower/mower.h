@@ -29,6 +29,10 @@ choose your robot type, PCB version, baud rates, pin definitions etc.
 #define ROBOT_ARDUMOWER
 //#define ROBOT_MINI
 
+// ------- Choose motor driver (MC33926 is recommended) -----------------------
+#define DRIVER_MC33926
+//#define DRIVER_L298N
+
 
 // DO NOT CHANGE - Due or Mega is detected automatically (based on Arduino IDE settings)
 #ifdef __AVR__
@@ -113,7 +117,7 @@ choose your robot type, PCB version, baud rates, pin definitions etc.
 
 // ------- baudrates---------------------------------
 #define CONSOLE_BAUDRATE    19200       // baudrate used for console
-#define BLUETOOTH_BAUDRATE  19200      // baudrate used for communication with Bluetooth module (Ardumower default: 19200)
+#define BLUETOOTH_BAUDRATE  19200       // baudrate used for communication with Bluetooth module (Ardumower default: 19200)
 #define ESP8266_BAUDRATE    115200      // baudrate used for communication with esp8266 Wifi module
 #define BLUETOOTH_PIN       1234
 
@@ -140,6 +144,7 @@ choose your robot type, PCB version, baud rates, pin definitions etc.
 
 // ------- I2C addresses --------------------------------------------------------------
 #define DS1307_ADDRESS B1101000
+#define AT24C32_ADDRESS B1010000
 
 // ---- choose only one perimeter signal code ----
 #define SIGCODE_1  // Ardumower default perimeter signal

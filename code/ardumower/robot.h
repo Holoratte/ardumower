@@ -33,7 +33,6 @@
   #include <EEPROM.h>
 #else
   // Arduino Due
-  #include "due.h"
 #endif
 //#include <Servo.h>  // for RC brushless contoller
 #include "drivers.h"
@@ -126,6 +125,7 @@ enum {
   ERR_IMU_CALIB,
   ERR_EEPROM_DATA,
   ERR_STUCK,
+	ERR_CPU_SPEED,
   // <---- add new error types here (NOTE: increase MAGIC to avoid corrupt EEPROM error data!)
   ERR_ENUM_COUNT,  
 };  
@@ -440,6 +440,7 @@ class Robot
     float chgSense        ;       // mV/A empfindlichkeit des Ladestromsensors in mV/A (Für ACS712 5A = 185)
     char chgChange        ;       // messwertumkehr von - nach +         1oder 0
     float batVoltage ;  // battery voltage (Volt)
+    float DiodeD9         ;       // Spannungsabfall an der Diode D9 auf den 1.3 Board (Die Spannungsanzeige ist zu niedrig verursacht durch die Diode D9 **UZ**
     byte chgSelection     ;       // Senor Auswahl
     float batRefFactor ;
     float batCapacity ; // battery capacity (mAh)
@@ -463,6 +464,7 @@ class Robot
     byte errorCounter[ERR_ENUM_COUNT];    // temporary error counts (will be resetted periodically)
     // --------- other ----------------------------------
     int loopsPerSec ;  // main loops per second
+		byte loopsPerSecLowCounter ;  
     float loopsTa ;   // main loop-time factor (milliseconds)
     int loopsPerSecCounter ;
     byte buttonCounter ;
