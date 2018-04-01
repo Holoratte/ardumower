@@ -554,7 +554,7 @@ void RemoteControl::sendPerimeterMenu(boolean update){
   sendPIDSlider("e07", F("Track"), robot->perimeterPID, 0.1, 100);  
   //serialPort->print(F("|e09~Use differential signal "));
   //sendYesNo(robot->perimeter.useDifferentialPerimeterSignal);    
-  serialPort->print(F("|e21~Track only inside perimeter EXPERIMENTAL "));
+  serialPort->print(F("|e21~Track only inside EXPERT "));
   sendYesNo(robot->trackInsidePerimeterOnly);
   serialPort->print(F("|e10~Swap coil polarity "));
   sendYesNo(robot->perimeter.swapCoilPolarity);
@@ -701,8 +701,8 @@ void RemoteControl::sendBatteryMenu(boolean update){
   //bb add
   if (robot->developerActive)
   {
-    sendSlider("j09", F("Calibrate batChgFactor"), robot->batChgFactor, "", 0.001, 0.30, 0.55);
-    sendSlider("j05", F("Calibrate batFactor "), robot->batFactor, "", 0.001, 0.30, 0.55);
+    sendSlider("j09", F("Calibrate batChgFactor"), robot->batChgFactor, "", 0.001, 0.05, 2.5);
+    sendSlider("j05", F("Calibrate batFactor "), robot->batFactor, "", 0.001, 0.05, 2.5);
   }
   //end add
   
@@ -1139,6 +1139,7 @@ void RemoteControl::processJoystick(char rcDirection, String pfodCmd){
   if (rcDirection == 'Y') robot->remoteSpeed = speedInt;
   
 }      
+
 void RemoteControl::processSettingsMenu(String pfodCmd){   
   if (pfodCmd == "s1") sendMotorMenu(false);
       else if (pfodCmd == "s2") sendMowMenu(false);
@@ -1212,6 +1213,8 @@ void RemoteControl::run(){
       serialPort->print(",");
       serialPort->print(robot->imu.com.z);
       serialPort->print(",");
+      serialPort->print(robot->bumperduinoDt);
+      serialPort->print(",");
       float lat, lon;
       unsigned long age;
       robot->gps.f_get_position(&lat, &lon, &age);
@@ -1280,7 +1283,12 @@ void RemoteControl::run(){
       serialPort->print(",");
       serialPort->print(robot->imu.com.y);
       serialPort->print(",");
-      serialPort->println(robot->imu.com.z);
+      serialPort->print(robot->imu.com.z);
+      serialPort->print(",");
+      serialPort->print(robot->imuTemperature);
+      serialPort->print(",");
+      serialPort->println(robot->bumperduinoDt*1000);
+      
     }
   } else if (pfodState == PFOD_PLOT_SENSOR_COUNTERS){
     if (currentMillis >= nextPlotTime){
@@ -1433,7 +1441,10 @@ bool RemoteControl::readSerial(){
       char ch = serialPort->read();
       //Console.print("pfod ch=");
       //Console.println(ch);
-      if (ch == '}') pfodCmdComplete = true; 
+      if (ch == '}') {
+        pfodCmdComplete = true; 
+        
+      }
       else if (ch == '{') pfodCmd = "";
       else if (pfodCmd == "$") {
         rcDirection = ch;
@@ -1460,7 +1471,7 @@ bool RemoteControl::readSerial(){
           serialPort->println(F("{=Log sensors}"));
           serialPort->print(F("time,leftsen,rightsen,mowsen,sonleft,soncenter,sonright,"));
           serialPort->print(F("perinside,permag,odoleft,odoright,yaw,pitch,roll,gyrox,gyroy,"));
-          serialPort->print(F("gyroz,accx,accy,accz,comx,comy,comz,hdop,sats,gspeed,gcourse,"));
+          serialPort->print(F("gyroz,accx,accy,accz,comx,comy,comz,dt[ms],hdop,sats,gspeed,gcourse,"));
           serialPort->println(F("galt,lat,lon,loopsPerSec"));
           pfodState = PFOD_LOG_SENSORS;
         }  
@@ -1479,7 +1490,7 @@ bool RemoteControl::readSerial(){
         else if (pfodCmd == "y3") {        
           // plot IMU
           serialPort->print(F("{=IMU`60|time s`0|yaw`1~180~-180|pitch`1|roll`1|gyroX`2~90~-90|gyroY`2|gyroZ`2|accX`3~2~-2|accY`3|accZ`3"));
-          serialPort->println(F("|comX`4~2~-2|comY`4|comZ`4}"));
+          serialPort->println(F("|comX`4~2~-2|comY`4|comZ`4|imuTemp`100|dT[ms]`1000}"));
           nextPlotTime = 0;
           pfodState = PFOD_PLOT_IMU;
         }
@@ -1562,7 +1573,7 @@ bool RemoteControl::readSerial(){
         else if (pfodCmd.startsWith("x")) processFactorySettingsMenu(pfodCmd);
         else if (pfodCmd.startsWith("u")) processDropMenu(pfodCmd);            
         else if (pfodCmd.startsWith("v")) processInfoMenu(pfodCmd);                    
-        else if (pfodCmd.startsWith("z")) processErrorMenu(pfodCmd);                    
+        else if (pfodCmd.startsWith("z")) processErrorMenu(pfodCmd);   
         else {
           // no match
           serialPort->println("{}");

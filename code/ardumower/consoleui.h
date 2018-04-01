@@ -38,7 +38,7 @@ void Robot::printInfo(Stream &s){
 
   if (consoleMode == CONSOLE_OFF) {
   } else {
-  Streamprint(s, "t%6u ", (millis()-stateStartTime)/1000);  
+  Streamprint(s, "t%6u ", (currentMillis-stateStartTime)/1000);  
   Streamprint(s, "l%3u ", loopsPerSec);  
   //Streamprint(s, "r%4u ", freeRam());  
   Streamprint(s, "v%1d ", consoleMode);			    
@@ -113,8 +113,8 @@ void Robot::printMenu(){
 
 
 void Robot::delayInfo(int ms){
-  unsigned long endtime = millis() +ms;
-  while (millis() < endtime){
+  unsigned long endtime = currentMillis +ms;
+  while (currentMillis < endtime){
     readSensors();
     printInfo(Console);
     delay(1000);
@@ -231,7 +231,7 @@ void Robot::testMotors(){
 
   Console.println(F("testing left motor (reverse) full speed..."));
   delay(1000); 
-  motorLeftPWMCurr = -motorSpeedMaxPwm; motorRightPWMCurr = 0; 
+  motorLeftPWMCurr = -motorSpeedMaxPwm/2; motorRightPWMCurr = 0; 
   setMotorPWM(motorLeftPWMCurr, motorRightPWMCurr, false);
   delayInfo(5000);  
   motorLeftPWMCurr = 0; motorRightPWMCurr = 0;
@@ -247,7 +247,7 @@ void Robot::testMotors(){
 
   Console.println(F("testing right motor (reverse) full speed..."));
   delay(1000);    
-  motorLeftPWMCurr = 0; motorRightPWMCurr = -motorSpeedMaxPwm;      
+  motorLeftPWMCurr = 0; motorRightPWMCurr = -motorSpeedMaxPwm/2;      
   setMotorPWM(motorLeftPWMCurr, motorRightPWMCurr, false);
   delayInfo(5000);
   motorLeftPWMCurr = 0; motorRightPWMCurr = 0;

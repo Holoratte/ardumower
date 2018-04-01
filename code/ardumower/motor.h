@@ -67,8 +67,8 @@ void Robot::setMotorMowRPMState(boolean motorMowRpmState){
 
 // calculate map position by odometry sensors
 void Robot::calcOdometry(){
-  if ((!odometryUse) || (millis() < nextTimeOdometry)) return;    
-    nextTimeOdometry = millis() + 200;
+  if ((!odometryUse) || (currentMillis < nextTimeOdometry)) return;    
+    nextTimeOdometry = currentMillis + 50;
 
   static int lastOdoLeft = 0;
   static int lastOdoRight = 0;
@@ -84,9 +84,9 @@ void Robot::calcOdometry(){
   double wheel_theta = (left_cm - right_cm) / ((double)odometryWheelBaseCm);
   odometryTheta += wheel_theta; 
   
-  motorLeftRpmCurr  = double ((( ((double)ticksLeft) / ((double)odometryTicksPerRevolution)) / ((double)(millis() - lastMotorRpmTime))) * 60000.0); 
-  motorRightRpmCurr = double ((( ((double)ticksRight) / ((double)odometryTicksPerRevolution)) / ((double)(millis() - lastMotorRpmTime))) * 60000.0);                
-  lastMotorRpmTime = millis();
+  motorLeftRpmCurr  = double ((( ((double)ticksLeft) / ((double)odometryTicksPerRevolution)) / ((double)(currentMillis - lastMotorRpmTime))) * 60000.0); 
+  motorRightRpmCurr = double ((( ((double)ticksRight) / ((double)odometryTicksPerRevolution)) / ((double)(currentMillis - lastMotorRpmTime))) * 60000.0);                
+  lastMotorRpmTime = currentMillis;
                
   if (imuUse){
     odometryX += avg_cm * sin(imu.ypr.yaw); 
@@ -104,8 +104,8 @@ void Robot::calcOdometry(){
 //   http://wiki.ardumower.de/images/a/a5/Motor_polarity_switch_protection.png 
 // - optional: ensures that the motors (and gears) are not switched to 0% (or 100%) too fast (motorAccel)
 void Robot::setMotorPWM(int pwmLeft, int pwmRight, boolean useAccel){
-  unsigned long TaC = millis() - lastSetMotorSpeedTime;    // sampling time in millis
-  lastSetMotorSpeedTime = millis();  
+  unsigned long TaC = currentMillis - lastSetMotorSpeedTime;    // sampling time in millis
+  lastSetMotorSpeedTime = currentMillis;  
   if (TaC > 1000) TaC = 1;
 
   if (useAccel){  
@@ -158,8 +158,8 @@ void Robot::setMotorPWM(int pwmLeft, int pwmRight, boolean useAccel){
 // - ensures that the motor is not switched to 100% too fast (motorMowAccel)
 // - ensures that the motor voltage is not higher than motorMowSpeedMaxPwm
 void Robot::setMotorMowPWM(int pwm, boolean useAccel){
-  unsigned long TaC = millis() - lastSetMotorMowSpeedTime;    // sampling time in millis
-  lastSetMotorMowSpeedTime = millis();  
+  unsigned long TaC = currentMillis - lastSetMotorMowSpeedTime;    // sampling time in millis
+  lastSetMotorMowSpeedTime = currentMillis;  
   if (TaC > 1000) TaC = 1;  
   // we need to ignore acceleration for PID control, and we can ignore if speed is lowered (e.g. motor is shut down)
   if ( (!useAccel) || (pwm < motorMowPWMCurr) )
@@ -174,8 +174,8 @@ void Robot::setMotorMowPWM(int pwm, boolean useAccel){
 
 // PID controller: roll robot to heading (requires IMU)
 void Robot::motorControlImuRoll(){
-  if (millis() < nextTimeMotorImuControl) return;
-  nextTimeMotorImuControl = millis() + 100;
+  if (currentMillis < nextTimeMotorImuControl) return;
+  nextTimeMotorImuControl = currentMillis + 100;
 
   
   // Regelbereich entspricht 80% der maximalen Drehzahl am Antriebsrad (motorSpeedMaxRpm)
@@ -211,7 +211,7 @@ void Robot::motorControlImuRoll(){
   //if((motorRightSpeedRpmSet >= 0 ) && (rightSpeed <0 )) rightSpeed = 0;
   //if((motorRightSpeedRpmSet <= 0 ) && (rightSpeed >0 )) rightSpeed = 0;         
 
-  if (  ((stateCurr == STATE_OFF) || (stateCurr == STATE_STATION) || (stateCurr == STATE_ERROR)) && (millis()-stateStartTime>1000)  ){
+  if (  ((stateCurr == STATE_OFF) || (stateCurr == STATE_STATION) || (stateCurr == STATE_ERROR)) && (currentMillis-stateStartTime>1000)  ){
     leftSpeed = rightSpeed = 0; // ensures PWM is zero if OFF/CHARGING
   }
   setMotorPWM( leftSpeed, rightSpeed, false );                   
@@ -222,8 +222,8 @@ void Robot::motorControlImuRoll(){
 
 // PID controller: track perimeter 
 void Robot::motorControlPerimeter(){    
-  if (millis() < nextTimeMotorPerimeterControl) return;
-    nextTimeMotorPerimeterControl = millis() + 30;
+  if (currentMillis < nextTimeMotorPerimeterControl) return;
+    nextTimeMotorPerimeterControl = currentMillis + 30;
   if (trackInsidePerimeterOnly){
     if (perimeterInside){
       perimeterPID.x = (double(perimeterMagMedianInside.getMedian())/double(perimeterMagMax)); 
@@ -253,7 +253,7 @@ void Robot::motorControlPerimeter(){
   Console.println(perimeterPID.y);  */
   }
   else{ //!trackInsidePerimeterOnly normal Line following
-  if ((millis() > stateStartTime + 5000) && (millis() > perimeterLastTransitionTime + trackingPerimeterTransitionTimeOut)){
+  if ((currentMillis > stateStartTime + 5000) && (currentMillis > perimeterLastTransitionTime + trackingPerimeterTransitionTimeOut)){
     // robot is wheel-spinning while tracking => roll to get ground again
     if (trackingBlockInnerWheelWhilePerimeterStruggling == 0){
     if (perimeterInside) setMotorPWM( -MaxSpeedperiPwm/2, MaxSpeedperiPwm/2, false);
@@ -264,7 +264,7 @@ void Robot::motorControlPerimeter(){
         else setMotorPWM( MaxSpeedperiPwm/2, MaxSpeedperiPwm/6, false);
     }
 
-    if (millis() > perimeterLastTransitionTime + trackingErrorTimeOut){      
+    if (currentMillis > perimeterLastTransitionTime + trackingErrorTimeOut){      
       Debug.println("Error: tracking error");
       addErrorCounter(ERR_TRACKING);
       //setNextState(STATE_ERROR,0);
@@ -301,8 +301,8 @@ void Robot::motorControlPerimeter(){
 
 // PID controller: correct direction during normal driving (requires IMU)
 void Robot::motorControlImuDir(){
-  if (millis() < nextTimeMotorImuControl) return;
-    nextTimeMotorImuControl = millis() + 100;
+  if (currentMillis < nextTimeMotorImuControl) return;
+    nextTimeMotorImuControl = currentMillis + 50;
 
   int correctLeft = 0;
   int correctRight = 0;
@@ -345,7 +345,7 @@ void Robot::motorControlImuDir(){
   if((motorRightSpeedRpmSet >= 0 ) && (rightSpeed <0 )) rightSpeed = 0;
   if((motorRightSpeedRpmSet <= 0 ) && (rightSpeed >0 )) rightSpeed = 0;         
   
-  if (  ((stateCurr == STATE_OFF) || (stateCurr == STATE_STATION) || (stateCurr == STATE_ERROR)) && (millis()-stateStartTime>1000)  ){
+  if (  ((stateCurr == STATE_OFF) || (stateCurr == STATE_STATION) || (stateCurr == STATE_ERROR)) && (currentMillis-stateStartTime>1000)  ){
     leftSpeed = rightSpeed = 0; // ensures PWM is zero if OFF/CHARGING
   }
   setMotorPWM( leftSpeed, rightSpeed, false );                   
@@ -357,12 +357,12 @@ void Robot::checkOdometryFaults(){
   if (!odometryUse)  return;
   bool leftErr = false;
   bool rightErr = false;
-  if ((stateCurr == STATE_FORWARD) &&  (millis()-stateStartTime>8000) ) {
+  if ((stateCurr == STATE_FORWARD) &&  (currentMillis-stateStartTime>8000) ) {
     // just check if odometry sensors may not be working at all
     if ( (motorLeftPWMCurr > 100) && (abs(motorLeftRpmCurr) < 1)  )  leftErr = true;
     if ( (motorRightPWMCurr > 100) && (abs(motorRightRpmCurr) < 1)  ) rightErr = true;
   }  
-  if ((stateCurr == STATE_ROLL) &&  (millis()-stateStartTime>1000) ) {
+  if ((stateCurr == STATE_ROLL) &&  (currentMillis-stateStartTime>1000) ) {
     // just check if odometry sensors may be turning in the wrong direction
     if ( ((motorLeftPWMCurr > 100) && (motorLeftRpmCurr < -3)) || ((motorLeftPWMCurr < -100) && (motorLeftRpmCurr > 3)) ) leftErr = true;
     if ( ((motorRightPWMCurr > 100) && (motorRightRpmCurr < -3)) || ((motorRightPWMCurr < -100) && (motorRightRpmCurr > 3)) ) rightErr = true;
@@ -385,7 +385,7 @@ void Robot::checkOdometryFaults(){
   }
 }
 
-
+/*
 void Robot::motorControl(){
   if (millis() < nextTimeMotorControl) return;
     nextTimeMotorControl = millis() + 100;
@@ -429,6 +429,80 @@ void Robot::motorControl(){
     if ( (abs(motorLeftPID.x) < 2) && (abs(motorLeftPID.w) < 0.1) ) leftSpeed = 0; // ensures PWM is really zero 
     if ( (abs(motorRightPID.x)  < 2) && (abs(motorRightPID.w) < 0.1) ) rightSpeed = 0; // ensures PWM is really zero     
 
+    //if (millis() >= nextMotorControlOutputTime){
+      //nextMotorControlOutputTime = millis() + 3000; 
+      //Console.print("PID x=");
+      //Console.print(motorLeftPID.x);
+      //Console.print("\tPID w=");
+      //Console.print(motorLeftPID.w);
+      //Console.print("\tPID y=");
+      //Console.print(motorLeftPID.y);
+      //Console.print("\tPWM=");
+      //Console.println(leftSpeed);            
+    //} 
+
+    setMotorPWM( leftSpeed, rightSpeed, false );              
+  }
+  else{
+    int leftSpeed = min(motorSpeedMaxPwm, max(-motorSpeedMaxPwm, map(motorLeftSpeedRpmSet, -motorSpeedMaxRpm, motorSpeedMaxRpm, -motorSpeedMaxPwm, motorSpeedMaxPwm)));
+    int rightSpeed =min(motorSpeedMaxPwm, max(-motorSpeedMaxPwm, map(motorRightSpeedRpmSet, -motorSpeedMaxRpm, motorSpeedMaxRpm, -motorSpeedMaxPwm, motorSpeedMaxPwm)));
+    if (millis() < stateStartTime + motorZeroSettleTime) {
+      leftSpeed = rightSpeed = 0; // slow down at state start      
+      if (mowPatternCurr != MOW_LANES) imuDriveHeading = imu.ypr.yaw; // set drive heading    
+    }
+    setMotorPWM( leftSpeed, rightSpeed, true ); 
+  }  
+}
+*/
+void Robot::motorControl(){
+  if (currentMillis < nextTimeMotorControl) return;
+    nextTimeMotorControl = currentMillis + 70;
+    static unsigned long nextMotorControlOutputTime = 0;
+  if (odometryUse){
+    // Regelbereich entspricht maximaler PWM am Antriebsrad (motorSpeedMaxPwm), um auch an Steigungen höchstes Drehmoment für die Solldrehzahl zu gewährleisten
+    motorLeftPID.w = motorLeftSpeedRpmSet;               // SOLL 
+    motorRightPID.w = motorRightSpeedRpmSet;             // SOLL    
+    float RLdiff = motorLeftRpmCurr - motorRightRpmCurr;
+    if (motorLeftSpeedRpmSet == motorRightSpeedRpmSet){
+      // line motion
+      if (true){
+			  motorLeftPID.w = motorLeftSpeedRpmSet - RLdiff/2;
+        motorRightPID.w = motorRightSpeedRpmSet + RLdiff/2;      
+      }
+    }
+    motorLeftPID.x = motorLeftRpmCurr;                 // IST     
+    if (currentMillis < stateStartTime + motorZeroSettleTime) motorLeftPID.w = 0; // get zero speed first after state change
+    motorLeftPID.y_min = -motorSpeedMaxPwm;        // Regel-MIN
+    motorLeftPID.y_max = motorSpeedMaxPwm;     // Regel-MAX
+    motorLeftPID.max_output = motorSpeedMaxPwm;    // Begrenzung
+    motorLeftPID.compute();
+		int leftSpeed = motorLeftPWMCurr + motorLeftPID.y;
+		if (motorLeftSpeedRpmSet >= 0) leftSpeed = min( max(0, leftSpeed), motorSpeedMaxPwm);
+    if (motorLeftSpeedRpmSet < 0) leftSpeed = max(-motorSpeedMaxPwm, min(0, leftSpeed)); 		
+
+    // Regelbereich entspricht maximaler PWM am Antriebsrad (motorSpeedMaxPwm), um auch an Steigungen höchstes Drehmoment für die Solldrehzahl zu gewährleisten
+    motorRightPID.Kp = motorLeftPID.Kp;
+    motorRightPID.Ki = motorLeftPID.Ki;
+    motorRightPID.Kd = motorLeftPID.Kd;          
+    motorRightPID.x = motorRightRpmCurr;               // IST
+    if (currentMillis < stateStartTime + motorZeroSettleTime) motorRightPID.w = 0; // get zero speed first after state change
+    motorRightPID.y_min = -motorSpeedMaxPwm;       // Regel-MIN
+    motorRightPID.y_max = motorSpeedMaxPwm;        // Regel-MAX
+    motorRightPID.max_output = motorSpeedMaxPwm;   // Begrenzung
+    motorRightPID.compute();            
+		int rightSpeed = motorRightPWMCurr + motorRightPID.y;
+		if (motorRightSpeedRpmSet >= 0) rightSpeed = min( max(0, rightSpeed), motorSpeedMaxPwm);
+    if (motorRightSpeedRpmSet < 0) rightSpeed = max(-motorSpeedMaxPwm, min(0, rightSpeed)); 		   
+
+    if ( (abs(motorLeftPID.x) < 2) && (abs(motorLeftPID.w) < 0.1) ) {
+      leftSpeed = 0; // ensures PWM is really zero 
+      motorLeftPID.reset();
+    }
+    if ( (abs(motorRightPID.x)  < 2) && (abs(motorRightPID.w) < 0.1) ){
+      rightSpeed = 0; // ensures PWM is really zero  
+      motorRightPID.reset();   
+    }
+
     /*if (millis() >= nextMotorControlOutputTime){
       nextMotorControlOutputTime = millis() + 3000; 
       Console.print("PID x=");
@@ -446,7 +520,7 @@ void Robot::motorControl(){
   else{
     int leftSpeed = min(motorSpeedMaxPwm, max(-motorSpeedMaxPwm, map(motorLeftSpeedRpmSet, -motorSpeedMaxRpm, motorSpeedMaxRpm, -motorSpeedMaxPwm, motorSpeedMaxPwm)));
     int rightSpeed =min(motorSpeedMaxPwm, max(-motorSpeedMaxPwm, map(motorRightSpeedRpmSet, -motorSpeedMaxRpm, motorSpeedMaxRpm, -motorSpeedMaxPwm, motorSpeedMaxPwm)));
-    if (millis() < stateStartTime + motorZeroSettleTime) {
+    if (currentMillis < stateStartTime + motorZeroSettleTime) {
       leftSpeed = rightSpeed = 0; // slow down at state start      
       if (mowPatternCurr != MOW_LANES) imuDriveHeading = imu.ypr.yaw; // set drive heading    
     }
@@ -454,14 +528,13 @@ void Robot::motorControl(){
   }  
 }
 
-
 // motor mow speed controller (slowly adjusts output speed to given input speed)
 // input: motorMowEnable, motorMowModulate, motorMowRpmCurr
 // output: motorMowPWMCurr
 void Robot::motorMowControl(){
-  if (millis() < nextTimeMotorMowControl) return;
+  if (currentMillis < nextTimeMotorMowControl) return;
 
-    nextTimeMotorMowControl = millis() + 100;
+    nextTimeMotorMowControl = currentMillis + 50;
     if (motorMowEnableOverride) motorMowEnable = false;
   double mowSpeed ;
   if (!motorMowEnable) {

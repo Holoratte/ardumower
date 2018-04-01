@@ -9,7 +9,7 @@
 class PinManager {
   public:  
     void begin();
-	  void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;  
+	  void analogWrite25k( uint8_t uPin, uint8_t uValue ) ;  
 };
 
 extern PinManager PinMan;

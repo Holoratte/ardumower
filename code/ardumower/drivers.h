@@ -114,7 +114,7 @@ unsigned int readURM37(int triggerPin, int echoPin);
 
 // motor drivers
 void setPwmFrequency(int pin, int divisor);
-void setL298N(int pinDir, int pinPWM, int speed);
+void setL298N(int pinDir, int pinPWM, int speedInt);
 void setL9958(int pinDir, int pinPWM, int speed);
 void setRomeoMotor(int pinDir, int pinPWM, int speed);
 void setMC33926(int pinDir, int pinPWM, int speed);

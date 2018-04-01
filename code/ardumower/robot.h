@@ -57,7 +57,7 @@
 */
 
 // code version 
-#define VER "1.0a7-Azurit-dev3_Sheep"
+#define VER "1.0a7-Azurit-dev3_Mini"
  
 
 // sensors
@@ -159,6 +159,7 @@ enum {
   STATE_PERI_OUT_ROLL,   // outside perimeter rolling driving without checkPerimeterBoundary()
   STATE_TILT_STOP,    // tilt sensor activated, stop motors, wait for un-tilt
   STATE_BUMPER_STUCK, // Bumper is stuck, robot tends to go backward until outside perimeter
+  STATE_IMU_CALIB, // imu calibration ongoing
 };
 
 // roll types
@@ -185,6 +186,7 @@ class Robot
     byte stateLast;
     byte stateNext;    
     unsigned long stateTime;
+    unsigned long currentMillis;
     char* stateName();
     unsigned long stateStartTime;
     unsigned long stateEndTime;
@@ -304,7 +306,7 @@ class Robot
     float motorMowAccel       ;  // motor mower acceleration (warning: do not set too high)
     int motorMowSpeedMaxPwm ;    // motor mower max PWM
     float motorMowPowerMax ;     // motor mower max power (Watt)
-	float motorMowPowerThreshold ;     // motor mower power (Watt) for detection of unmown areas
+	  float motorMowPowerThreshold ;     // motor mower power (Watt) for detection of unmown areas
     char motorMowModulate  ;      // motor mower cutter modulation?
     int motorMowRPMSet        ;   // motor mower RPM (only for cutter modulation)
     float motorMowSenseScale ; // motor mower sense scale (mA=(ADC-zero)/scale)
@@ -333,10 +335,12 @@ class Robot
     boolean tilt;
     int bumperLeftCounter ;
     unsigned long bumperLeftLastTime ;
-    boolean bumperLeft ;          
+    boolean bumperLeft ;
+    int bumperLeftNew;
     int bumperRightCounter ;
     unsigned long bumperRightLastTime ;
     boolean bumperRight ;
+    int bumperRightNew;
     unsigned long nextTimeBumper ;
     unsigned long bumperStuckTime;
     // --------- drop state ---------------------------
@@ -361,6 +365,10 @@ class Robot
     //point_float_t accMax;
     unsigned long nextTimeIMU ; //read IMU data
     unsigned long nextTimeCheckTilt; // check if
+    unsigned long imuCalibTime; //Time IMU calibration startet
+    boolean bumperduinoNotStarted;
+    float bumperduinoDt; //loop time in bumperduino
+    float imuTemperature;
     // ------- perimeter state --------------------------
     Perimeter perimeter;
     char perimeterUse       ;      // use perimeter?    
@@ -411,12 +419,12 @@ class Robot
     char sonarCenterUse;
     int sonarTriggerBelow ;    // ultrasonic sensor trigger distance
     int sonarSlowBelow ;    
-    unsigned int sonarDistCenter ;
-    unsigned int sonarDistRight ;
-    unsigned int sonarDistLeft ; 
-    RunningMedian sonarDistCenterMedian = RunningMedian(7);
-    RunningMedian sonarDistRightMedian = RunningMedian(7);
-    RunningMedian sonarDistLeftMedian = RunningMedian(7);
+    float sonarDistCenter ;
+    float sonarDistRight ;
+    float sonarDistLeft ; 
+    float sonarDistCenterNew ;
+    float sonarDistRightNew ;
+    float sonarDistLeftNew ; 
     unsigned int sonarDistCounter ;
     unsigned int tempSonarDistCounter ;
     unsigned long sonarObstacleTimeout ;
@@ -520,6 +528,11 @@ class Robot
     virtual void setMotorPWM(int pwmLeft, int pwmRight, boolean useAccel);    
     virtual void setMotorMowPWM(int pwm, boolean useAccel);
     
+    //bumperduino
+    virtual void initBumpderuino(); 
+    virtual void readBumpderuino(); 
+    virtual boolean isValidNumber(String str);
+    virtual void imuStartBumpderuino(); 
     // GPS
     virtual void processGPSData();
     
@@ -556,7 +569,9 @@ protected:
     virtual void readSensors();            
     
     // read serial
-    virtual void readSerial();    
+    virtual void readSerial();   
+
+    
     
     // check sensor
     virtual void checkButton();

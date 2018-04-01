@@ -133,13 +133,46 @@ String date2str(date_t date){
 // IN2/C(10)/PinPWM   IN1/D(12)/PinDir
 // H                  L     Forward
 // L                  H     Reverse    
-void setL298N(int pinDir, int pinPWM, int speed){
-  if (speed < 0){
-    digitalWrite(pinDir, HIGH) ;  
-    PinMan.analogWrite(pinPWM, ((byte)speed));
+void setL298N(int pinDir, int pinPWM, int speedInt){
+
+  if (speedInt < 0){
+    switch (pinDir) {
+        case 33:
+            bitWrite(PORTC, 4, 1);  //PC4
+            PinMan.analogWrite25k(pinPWM, 255-((byte)abs(speedInt)));
+            break;
+        case 31:
+            bitWrite(PORTC, 6, 1);  //PC6
+            PinMan.analogWrite25k(pinPWM, 255-((byte)abs(speedInt)));
+            break;
+        case 29:
+            bitWrite(PORTA, 7, 1);  //PA7
+            break;
+        default:
+            // no other pin will work
+            break;
+    }
+    //digitalWrite(pinDir, HIGH) ;  
+    //PinMan.analogWrite25k(pinPWM, (byte)abs(speedInt));
   } else {
-    digitalWrite(pinDir, LOW) ;  
-    PinMan.analogWrite(pinPWM, ((byte)speed));
+        switch (pinDir) {
+        case 33:
+            bitWrite(PORTC, 4, 0);  //PC4
+            PinMan.analogWrite25k(pinPWM, ((byte)speedInt));
+            break;
+        case 31:
+            bitWrite(PORTC, 6, 0);  //PC6
+            PinMan.analogWrite25k(pinPWM, ((byte)speedInt));
+            break;
+        case 29:
+            bitWrite(PORTA, 7, 0);  //PC4
+            break;
+        default:
+            // no other pin will work
+            break;
+    }
+    //digitalWrite(pinDir, LOW) ;  
+    //PinMan.analogWrite25k(pinPWM, ((byte)speedInt));
   }
 }
 
@@ -150,10 +183,10 @@ void setL298N(int pinDir, int pinPWM, int speed){
 void setRomeoMotor(int pinDir, int pinPWM, int speed){
   if (speed < 0){
     digitalWrite(pinDir, HIGH) ;  
-    PinMan.analogWrite(pinPWM, abs(speed));
+    PinMan.analogWrite25k(pinPWM, abs(speed));
   } else {
     digitalWrite(pinDir, LOW) ;  
-    PinMan.analogWrite(pinPWM, abs(speed));
+    PinMan.analogWrite25k(pinPWM, abs(speed));
   }
 }
 
@@ -164,10 +197,10 @@ void setRomeoMotor(int pinDir, int pinPWM, int speed){
 void setL9958(int pinDir, int pinPWM, int speed){
   if (speed > 0){
     digitalWrite(pinDir, HIGH) ;  
-    PinMan.analogWrite(pinPWM, abs(speed));
+    PinMan.analogWrite25k(pinPWM, abs(speed));
   } else {
     digitalWrite(pinDir, LOW) ;  
-    PinMan.analogWrite(pinPWM, abs(speed));
+    PinMan.analogWrite25k(pinPWM, abs(speed));
   }
 }
 
@@ -180,10 +213,10 @@ void setL9958(int pinDir, int pinPWM, int speed){
 void setMC33926(int pinDir, int pinPWM, int speed){
   if (speed < 0){
     digitalWrite(pinDir, HIGH) ;
-    PinMan.analogWrite(pinPWM, 255-((byte)abs(speed)));
+    PinMan.analogWrite25k(pinPWM, 255-((byte)abs(speed)));
   } else {
     digitalWrite(pinDir, LOW) ;
-    PinMan.analogWrite(pinPWM, ((byte)speed));
+    PinMan.analogWrite25k(pinPWM, ((byte)speed));
   }
 }
 

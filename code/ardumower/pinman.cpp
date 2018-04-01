@@ -19,12 +19,23 @@ PinManager PinMan;
 void PinManager::begin() {
 // PWM frequency
 #ifdef __AVR__
-  TCCR3B = (TCCR3B & 0xF8) | 0x02;    // set PWM frequency 3.9 Khz (pin2,3,5)  
-#endif
-  
-	uint8_t i;
-	for (i=0; i<PINS_COUNT; i++)
-		pinEnabled[i] = 0;
+    TCCR3A = 0;           // undo the configuration done by...
+    TCCR3B = 0;           // ...the Arduino core library
+    TCNT3  = 0;           // reset timer
+    TCCR3A = _BV(COM1A1)  // non-inverted PWM on ch. A
+           | _BV(COM1B1)  // same on ch; B
+           | _BV(COM1C1)  // same on ch; C
+           | _BV(WGM11);  // mode 10: ph. correct PWM, TOP = ICR1
+    TCCR3B = _BV(WGM13)   // ditto
+           //| _BV(WGM12)   // ditto
+           | _BV(CS30);   // prescaler = 1
+
+    ICR3   = 320;         // TOP = 320
+#else 
+  uint8_t i;
+  for (i=0; i<PINS_COUNT; i++)
+    pinEnabled[i] = 0;
+#endif  
 }
 
 
@@ -54,9 +65,22 @@ static void TC_SetCMR_ChannelB(Tc *tc, uint32_t chan, uint32_t v)
 // hardware support.  These are defined in the appropriate
 // pins_*.c file.  For the rest of the pins, we default
 // to digital output.
-void PinManager::analogWrite(uint32_t ulPin, uint32_t ulValue) {
+void PinManager::analogWrite25k(uint8_t uPin, uint8_t uValue){
 #ifdef __AVR__
-  ::analogWrite(ulPin, ulValue);
+      switch (uPin) {
+        case 3:
+            OCR3C = uValue;
+            break;
+        case 5:
+            OCR3A = uValue;
+            break;
+        case 2:
+            OCR3B = uValue;
+            break;
+        default:
+            // no other pin will work
+            break;
+      }
 #else  
 	uint32_t attr = g_APinDescription[ulPin].ulPinAttribute;
 
