@@ -62,7 +62,9 @@ class RemoteControl
     HardwareSerial* serialPort;
     Robot *robot;    
     boolean pfodCmdComplete;
+    boolean rcComplete;
     String pfodCmd;
+    char rcDirection;
     byte pfodState;
     int testmode;
     unsigned long nextPlotTime;
@@ -149,6 +151,7 @@ class RemoteControl
     void processTimerDetailMenu(String pfodCmd);    
     void sendTimerMenu(boolean update);
     void processTimerMenu(String pfodCmd);
+    void processJoystick(char rcDirection, String pfodCmd);
               
 };
 

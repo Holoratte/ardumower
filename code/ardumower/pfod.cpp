@@ -34,6 +34,8 @@
 
 RemoteControl::RemoteControl(){
   pfodCmdComplete = false;
+  rcComplete = false;
+  rcDirection = ' ';
   pfodCmd = "";
   pfodState = PFOD_OFF;
   testmode = 0;
@@ -1131,6 +1133,12 @@ void RemoteControl::processManualMenu(String pfodCmd){
   }  
 }
 
+void RemoteControl::processJoystick(char rcDirection, String pfodCmd){
+  int speedInt =  pfodCmd.toInt();
+  if (rcDirection == 'X') robot->remoteSteer = speedInt;
+  if (rcDirection == 'Y') robot->remoteSpeed = speedInt;
+  
+}      
 void RemoteControl::processSettingsMenu(String pfodCmd){   
   if (pfodCmd == "s1") sendMotorMenu(false);
       else if (pfodCmd == "s2") sendMowMenu(false);
@@ -1154,10 +1162,11 @@ void RemoteControl::processSettingsMenu(String pfodCmd){
 
 // process pfodState
 void RemoteControl::run(){  
+  unsigned long currentMillis = millis();
   if (pfodState == PFOD_LOG_SENSORS){
       //robot->printInfo(Bluetooth);
       //serialPort->println("test");
-      serialPort->print((float(millis())/1000.0f));
+      serialPort->print((float(currentMillis)/1000.0f));
       serialPort->print(",");
       serialPort->print(robot->motorLeftSense);
       serialPort->print(",");
@@ -1223,9 +1232,9 @@ void RemoteControl::run(){
       serialPort->print(robot->loopsPerSec);
       serialPort->println();
   } else if (pfodState == PFOD_PLOT_BAT){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 60000;
-      serialPort->print(((unsigned long)millis()/60000));
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 60000;
+      serialPort->print(((unsigned long)currentMillis/60000));
       serialPort->print(",");
       serialPort->print(robot->batVoltage);
       serialPort->print(",");
@@ -1238,16 +1247,16 @@ void RemoteControl::run(){
       serialPort->println(robot->batTemperature);
     }
   } else if (pfodState == PFOD_PLOT_ODO2D){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 500;
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 500;
       serialPort->print(robot->odometryX);
       serialPort->print(",");
       serialPort->println(robot->odometryY);
     }
   } else if (pfodState == PFOD_PLOT_IMU){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 200;
-      serialPort->print((float(millis())/1000.0f));
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 200;
+      serialPort->print((float(currentMillis)/1000.0f));
       serialPort->print(",");
       serialPort->print(robot->imu.ypr.yaw/PI*180);
       serialPort->print(",");
@@ -1274,9 +1283,9 @@ void RemoteControl::run(){
       serialPort->println(robot->imu.com.z);
     }
   } else if (pfodState == PFOD_PLOT_SENSOR_COUNTERS){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 200;
-      serialPort->print((float(millis())/1000.0f));
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 200;
+      serialPort->print((float(currentMillis)/1000.0f));
       serialPort->print(",");
       serialPort->print(robot->stateCurr);
       serialPort->print(",");
@@ -1305,9 +1314,9 @@ void RemoteControl::run(){
       serialPort->println(robot->loopsPerSec);
     }
   } else if (pfodState == PFOD_PLOT_SENSORS){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 200;
-      serialPort->print((float(millis())/1000.0f));
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 200;
+      serialPort->print((float(currentMillis)/1000.0f));
       serialPort->print(",");
       serialPort->print(robot->stateCurr);
       serialPort->print(",");
@@ -1334,7 +1343,7 @@ void RemoteControl::run(){
       serialPort->println(robot->dropRight);
     }
   } else if (pfodState == PFOD_PLOT_PERIMETER){    
-    if (millis() >= nextPlotTime){
+    if (currentMillis >= nextPlotTime){
 
       if (perimeterCaptureIdx>=RAW_SIGNAL_SAMPLE_SIZE*3)
               perimeterCaptureIdx = 0;
@@ -1344,7 +1353,7 @@ void RemoteControl::run(){
         memcpy(perimeterCapture, robot->perimeter.getRawSignalSample(0), RAW_SIGNAL_SAMPLE_SIZE);
       }
 
-      nextPlotTime = millis() + 200;
+      nextPlotTime = currentMillis + 200;
       serialPort->print(perimeterCapture[perimeterCaptureIdx / 3]);
       serialPort->print(",");
       serialPort->print(robot->perimeterMag);
@@ -1361,12 +1370,12 @@ void RemoteControl::run(){
       perimeterCaptureIdx++;
     }
   } else if (pfodState == PFOD_PLOT_GPS){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 200;
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 200;
       float lat, lon;
       unsigned long age;
       robot->gps.f_get_position(&lat, &lon, &age);
-      serialPort->print((float(millis())/1000.0f));
+      serialPort->print((float(currentMillis)/1000.0f));
       serialPort->print(",");
       serialPort->print(robot->gps.hdop());
       serialPort->print(",");
@@ -1383,16 +1392,16 @@ void RemoteControl::run(){
       serialPort->println(lon);
     }
   } else if (pfodState == PFOD_PLOT_GPS2D){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 500;
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 500;
       serialPort->print(robot->gpsX);
       serialPort->print(",");
       serialPort->println(robot->gpsY);
     }
   } else if (pfodState == PFOD_PLOT_MOTOR){
-    if (millis() >= nextPlotTime){
-      nextPlotTime = millis() + 50;
-      serialPort->print((float(millis())/1000.0f));
+    if (currentMillis >= nextPlotTime){
+      nextPlotTime = currentMillis + 50;
+      serialPort->print((float(currentMillis)/1000.0f));
       serialPort->print(",");
       serialPort->print(robot->motorLeftRpmCurr);
       serialPort->print(",");
@@ -1425,10 +1434,23 @@ bool RemoteControl::readSerial(){
       //Console.print("pfod ch=");
       //Console.println(ch);
       if (ch == '}') pfodCmdComplete = true; 
-        else if (ch == '{') pfodCmd = "";
-        else pfodCmd += ch;                
+      else if (ch == '{') pfodCmd = "";
+      else if (pfodCmd == "$") {
+        rcDirection = ch;
+        pfodCmd = "";
+        rcComplete = true;
+      }
+      else pfodCmd += ch;                
     }
-    if (pfodCmdComplete) {
+    if (rcComplete && pfodCmdComplete) {
+      rcComplete = false;
+      pfodCmdComplete = false;
+      processJoystick(rcDirection, pfodCmd);
+      serialPort->flush();
+      pfodCmd = "";
+
+    }
+    else if (pfodCmdComplete) {
       Console.print("pfod cmd=");
       Console.println(pfodCmd);
       pfodState = PFOD_MENU;    
