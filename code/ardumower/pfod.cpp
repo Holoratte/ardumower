@@ -1137,6 +1137,7 @@ void RemoteControl::processJoystick(char rcDirection, String pfodCmd){
   int speedInt =  pfodCmd.toInt();
   if (rcDirection == 'X') robot->remoteSteer = speedInt;
   if (rcDirection == 'Y') robot->remoteSpeed = speedInt;
+  if (rcDirection == 'Z') robot->remoteMow = speedInt;
   
 }      
 void RemoteControl::processSettingsMenu(String pfodCmd){   
