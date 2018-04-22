@@ -178,6 +178,46 @@ void setL9958(int pinDir, int pinPWM, int speed){
 // PWM                L     Forward
 // nPWM               H     Reverse
 void setMC33926(int pinDir, int pinPWM, int speed){
+#ifdef __AVR__
+  if (speed < 0){
+    switch (pinDir) {
+        case 33:
+            bitWrite(PORTC, 4, 1);  //PC4
+            PinMan.analogWrite(pinPWM, 255-((byte)abs(speed)));
+            break;
+        case 31:
+            bitWrite(PORTC, 6, 1);  //PC6
+            PinMan.analogWrite(pinPWM, 255-((byte)abs(speed)));
+            break;
+        case 29:
+            bitWrite(PORTA, 7, 1);  //PA7
+            PinMan.analogWrite(pinPWM, 255-((byte)abs(speed)));
+            break;
+        default:
+            // no other pin will work
+            break;
+    }
+  } else {
+        switch (pinDir) {
+        case 33:
+            bitWrite(PORTC, 4, 0);  //PC4
+            PinMan.analogWrite(pinPWM, ((byte)speed));
+            break;
+        case 31:
+            bitWrite(PORTC, 6, 0);  //PC6
+            PinMan.analogWrite(pinPWM, ((byte)speed));
+            break;
+        case 29:
+            bitWrite(PORTA, 7, 0);  //PA7
+            PinMan.analogWrite(pinPWM, ((byte)speed));
+            break;
+        default:
+            // no other pin will work
+            break;
+    }
+  }
+#else
+  Debug.println(F("not defined AVR in driver.cpp"))
   if (speed < 0){
     digitalWrite(pinDir, HIGH) ;
     PinMan.analogWrite(pinPWM, 255-((byte)abs(speed)));
@@ -185,6 +225,7 @@ void setMC33926(int pinDir, int pinPWM, int speed){
     digitalWrite(pinDir, LOW) ;
     PinMan.analogWrite(pinPWM, ((byte)speed));
   }
+#endif 
 }
 
 // ---- sensor drivers --------------------------------------------------------------
@@ -220,13 +261,13 @@ unsigned int readURM37(int triggerPin, int echoPin){
 boolean readDS1307(datetime_t &dt){
   byte buf[8];  
   if (I2CreadFrom(DS1307_ADDRESS, 0x00, 8, buf, 3) != 8) {
-    Debug.println("DS1307 comm error");    
+    Debug.println(F("DS1307 comm error"));    
     //addErrorCounter(ERR_RTC_COMM);
     return false;
   }      
   if (   ((buf[0] >> 7) != 0) || ((buf[1] >> 7) != 0) || ((buf[2] >> 7) != 0) || ((buf[3] >> 3) != 0) 
       || ((buf[4] >> 6) != 0) || ((buf[5] >> 5) != 0) || ((buf[7] & B01101100) != 0) ) {    
-    Debug.println("DS1307 data1 error");    
+    Debug.println(F("DS1307 data1 error"));   
     //addErrorCounter(ERR_RTC_DATA);
     return false;
   }
@@ -240,7 +281,7 @@ boolean readDS1307(datetime_t &dt){
   if (    (r.time.minute > 59) || (r.time.hour > 23) || (r.date.dayOfWeek > 6)  
        || (r.date.month > 12)  || (r.date.day > 31)  || (r.date.day < 1)         
        || (r.date.month < 1)   || (r.date.year > 99) ){
-    Debug.println("DS1307 data2 error");    
+    Debug.println(F("DS1307 data2 error"));   
     //addErrorCounter(ERR_RTC_DATA);
     return false;
   }  
@@ -252,7 +293,7 @@ boolean readDS1307(datetime_t &dt){
 boolean setDS1307(datetime_t &dt){
   byte buf[7];
   if (I2CreadFrom(DS1307_ADDRESS, 0x00, 7, buf, 3) != 7){
-    Debug.println("DS1307 comm error");    
+    Debug.println(F("DS1307 comm error"));  
     //addErrorCounter(ERR_RTC_COMM);
     return false;
   }

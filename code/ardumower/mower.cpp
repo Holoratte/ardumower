@@ -241,13 +241,13 @@ Mower::Mower(){
 
 
 // remote control (RC) ppm signal change interrupt
-ISR(PCINT0_vect){   
+ISR(PCINT0_vect){/*   
   unsigned long timeMicros = micros();
   boolean remoteSpeedState = digitalRead(pinRemoteSpeed);
   boolean remoteSteerState = digitalRead(pinRemoteSteer);
   boolean remoteMowState = digitalRead(pinRemoteMow);    
   boolean remoteSwitchState = digitalRead(pinRemoteSwitch);    
-  robot.setRemotePPMState(timeMicros, remoteSpeedState, remoteSteerState, remoteMowState, remoteSwitchState);    
+  robot.setRemotePPMState(timeMicros, remoteSpeedState, remoteSteerState, remoteMowState, remoteSwitchState);  */  
 }
 
 // odometry signal change interrupt
@@ -328,9 +328,9 @@ ISR(PCINT0_vect){
 //void rpm_interrupt(){
 //}
 
-NewPing NewSonarLeft(pinSonarLeftTrigger, pinSonarLeftEcho, 160);
-NewPing NewSonarRight(pinSonarRightTrigger, pinSonarRightEcho, 160);
-NewPing NewSonarCenter(pinSonarCenterTrigger, pinSonarCenterEcho, 160);
+NewPing NewSonarLeft(pinSonarLeftTrigger, pinSonarLeftEcho, 100);
+NewPing NewSonarRight(pinSonarRightTrigger, pinSonarRightEcho, 100);
+NewPing NewSonarCenter(pinSonarCenterTrigger, pinSonarCenterEcho, 100);
 
 
 
@@ -436,10 +436,10 @@ void Mower::setup(){
   pinMode(pinRemoteSwitch, INPUT);       
 
   // odometry
-  pinMode(pinOdometryLeft, INPUT_PULLUP);  
-  pinMode(pinOdometryLeft2, INPUT_PULLUP);    
-  pinMode(pinOdometryRight, INPUT_PULLUP);
-  pinMode(pinOdometryRight2, INPUT_PULLUP);  
+  pinMode(pinOdometryLeft, INPUT);  
+  pinMode(pinOdometryLeft2, INPUT);    
+  pinMode(pinOdometryRight, INPUT);
+  pinMode(pinOdometryRight2, INPUT);   
   
   // user switches
   pinMode(pinUserSwitch1, OUTPUT);
@@ -493,14 +493,14 @@ void Mower::setup(){
     //-------------------------------------------------------------------------
     // R/C
     //-------------------------------------------------------------------------
-    PCICR |= (1<<PCIE0);
+/*    PCICR |= (1<<PCIE0);
     if (remoteUse)
 	{
 	  PCMSK0 |= (1<<PCINT4);
 	  PCMSK0 |= (1<<PCINT5);
 	  PCMSK0 |= (1<<PCINT6);
 	}
-
+*/
 
 	 
     //-------------------------------------------------------------------------    
@@ -621,7 +621,7 @@ int Mower::readSensor(char type){
     case SEN_CHG_CURRENT: return ADCMan.read(pinChargeCurrent); break;
     
 // buttons------------------------------------------------------------------------------------------------
-    case SEN_BUTTON: return(digitalRead(pinButton)); break; 
+    case SEN_BUTTON: return(bitRead(PINB, 2)); break; 
     
 //bumper----------------------------------------------------------------------------------------------------
     case SEN_BUMPER_RIGHT: return(digitalRead(pinBumperRight)); break;
@@ -672,7 +672,7 @@ void Mower::setActuator(char type, int value){
     case ACT_MOTOR_LEFT: setMC33926(pinMotorLeftDir, pinMotorLeftPWM, value); break;//                                                                  Motortreiber einstellung - bei Bedarf ändern z.B setL298N auf setMC33926
     case ACT_MOTOR_RIGHT: setMC33926(pinMotorRightDir, pinMotorRightPWM, value); break; //                                                              Motortreiber einstellung - bei Bedarf ändern z.B setL298N auf setMC33926
     case ACT_BUZZER: if (value == 0) Buzzer.noTone(); else Buzzer.tone(value); break;
-    case ACT_LED: digitalWrite(pinLED, value); break;    
+    case ACT_LED: bitWrite(PINB,7 , value); break;  
     case ACT_USER_SW1: digitalWrite(pinUserSwitch1, value); break;     
     case ACT_USER_SW2: digitalWrite(pinUserSwitch2, value); break;     
     case ACT_USER_SW3: digitalWrite(pinUserSwitch3, value); break;         

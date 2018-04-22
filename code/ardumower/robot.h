@@ -57,7 +57,7 @@
 */
 
 // code version 
-#define VER "1.0a7-Azurit-dev3_Sheep"
+#define VER "1.0a7-Azurit-dev4_Sheep"
  
 
 // sensors
@@ -185,6 +185,7 @@ class Robot
     byte stateLast;
     byte stateNext;    
     unsigned long stateTime;
+    unsigned long currentMillis;
     char* stateName();
     unsigned long stateStartTime;
     unsigned long stateEndTime;
@@ -304,7 +305,7 @@ class Robot
     float motorMowAccel       ;  // motor mower acceleration (warning: do not set too high)
     int motorMowSpeedMaxPwm ;    // motor mower max PWM
     float motorMowPowerMax ;     // motor mower max power (Watt)
-	float motorMowPowerThreshold ;     // motor mower power (Watt) for detection of unmown areas
+	  float motorMowPowerThreshold ;     // motor mower power (Watt) for detection of unmown areas
     char motorMowModulate  ;      // motor mower cutter modulation?
     int motorMowRPMSet        ;   // motor mower RPM (only for cutter modulation)
     float motorMowSenseScale ; // motor mower sense scale (mA=(ADC-zero)/scale)

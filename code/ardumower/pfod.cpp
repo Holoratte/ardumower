@@ -554,7 +554,7 @@ void RemoteControl::sendPerimeterMenu(boolean update){
   sendPIDSlider("e07", F("Track"), robot->perimeterPID, 0.1, 100);  
   //serialPort->print(F("|e09~Use differential signal "));
   //sendYesNo(robot->perimeter.useDifferentialPerimeterSignal);    
-  serialPort->print(F("|e21~Track only inside perimeter EXPERIMENTAL "));
+  serialPort->print(F("|e21~Track only inside EXPERT "));
   sendYesNo(robot->trackInsidePerimeterOnly);
   serialPort->print(F("|e10~Swap coil polarity "));
   sendYesNo(robot->perimeter.swapCoilPolarity);
