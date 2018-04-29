@@ -182,6 +182,7 @@ Robot::Robot(){
   nextTimeInfo = 0;
   nextTimeMotorSense = 0;
   nextTimeIMU = 0;
+  nextTimeIMUUpdate = 0;
   nextTimeCheckTilt = 0;
   nextTimeOdometry = 0;
   nextTimeOdometryInfo = 0;
@@ -1273,15 +1274,17 @@ void Robot::loop()  {
   checkBattery(); 
   checkIfStuck();
   checkRobotStats();
-  ADCMan.run();
-  currentMillis = millis(); 
   calcOdometry();
   checkOdometryFaults();    
   checkButton(); 
   motorMowControl(); 
-  checkTilt(); 
+  checkTilt();
+
   
-  if (imuUse) imu.update();  
+  if ((imuUse) && (currentMillis >= nextTimeIMUUpdate)) {        
+    nextTimeIMUUpdate = currentMillis + 15; 
+    imu.update();  
+  }
 
   if (gpsUse) { 
     gps.feed();
@@ -1308,7 +1311,7 @@ void Robot::loop()  {
   }   
   currentMillis = millis();  
   calcOdometry();
-     
+  ADCMan.run();   
    // state machine - things to do *PERMANENTLY* for current state
    // robot state machine
    // http://wiki.ardumower.de/images/f/ff/Ardumower_states.png

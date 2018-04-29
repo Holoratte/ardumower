@@ -362,6 +362,7 @@ class Robot
     //point_float_t accMax;
     unsigned long nextTimeIMU ; //read IMU data
     unsigned long nextTimeCheckTilt; // check if
+    unsigned long nextTimeIMUUpdate ; //read IMU data
     // ------- perimeter state --------------------------
     Perimeter perimeter;
     char perimeterUse       ;      // use perimeter?    
