@@ -1,5 +1,5 @@
 # Ardumower
-
+THIS VERSION ONLY WORKS WITH PCB VERSION 0.5 OR 1.2 AND ARDUINO MEGA2560!!!
 ## Download
 https://github.com/Ardumower/ardumower/releases
 
