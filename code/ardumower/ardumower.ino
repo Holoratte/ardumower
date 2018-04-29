@@ -30,18 +30,16 @@
 #include <Arduino.h>
 #include <Wire.h>
 //#include <Servo.h>
-#ifdef __AVR__
+#ifdef __AVR_ATmega2560__
   // Arduino Mega
   #include <EEPROM.h>
 #else 
-  // Arduino Due
-  #include "due.h"
+  #error "Wrong Arduino board - Choose Arduino Mega  in Arduino IDE"
 #endif
 #include "config.h"
 
 
-// requires: Arduino Mega or Arduino Due
-// NOTE for Arduino Due:  use native USB port for programming and console!
+// requires: Arduino Mega 
 
 
 void setup()  {     
