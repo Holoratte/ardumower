@@ -1273,8 +1273,6 @@ void Robot::loop()  {
   checkBattery(); 
   checkIfStuck();
   checkRobotStats();
-  ADCMan.run();
-  currentMillis = millis(); 
   calcOdometry();
   checkOdometryFaults();    
   checkButton(); 
