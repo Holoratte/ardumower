@@ -410,8 +410,9 @@ void Robot::readSensors(){
       nextTimePerimeter = currentMillis +  50; // 50 
       perimeterMag = readSensor(SEN_PERIM_LEFT);   
     }
-    if ((perimeter.isInside(0) != perimeterInside)){      
+    if ((perimeter.isInside(0) != perimeterInside) && (stateCurr != STATE_STATION) && (stateCurr != STATE_STATION_CHARGING) ){      
       perimeterCounter++;
+      if (perimeterCounter >= 30000) perimeterCounter = 0;
       perimeterLastTransitionTime = currentMillis;
       perimeterInside = perimeter.isInside(0);
     }

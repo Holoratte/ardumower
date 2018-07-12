@@ -151,7 +151,7 @@ Mower::Mower(){
   #if defined (PCB_1_2)     // PCB 1.2	  
 	  batSwitchOffIfIdle         = 8;          // switch off battery if idle (minutes, 0=off) 	
 		startChargingIfBelow       = 27;      // start charging if battery Voltage is below
-		chargingTimeout            = 12600000;  // safety timer for charging (ms) 12600000 = 3.5hrs
+		chargingTimeout            = 22000000;  // safety timer for charging (ms) 12600000 = 3.5hrs
 		batFullCurrent             = 0.3;       // current flowing when battery is fully charged	 (amp)
 		//batFactor                  = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor	*10
 		//batChgFactor               = voltageDividerUges(47, 5.1, 1.0)*ADC2voltage(1)*10;   // ADC to battery voltage factor *10
