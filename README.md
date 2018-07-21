@@ -5,7 +5,7 @@ https://github.com/Holoratte/ardumower/releases
 
 
 ## Reporting a bug / Fehler melden
-https://www.ardumower.de/index.php/de/forum/eure-ardumower-umsetzung/724-sheep-sheep
+https://github.com/Holoratte/ardumower/issues
 ## Description
 Develop an open source robotic lawn mower (HW+SW reference platform)
 
