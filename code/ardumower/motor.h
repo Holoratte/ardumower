@@ -397,11 +397,11 @@ void Robot::motorControl(){
     float RLdiff = motorLeftRpmCurr - motorRightRpmCurr;
     if (motorLeftSpeedRpmSet == motorRightSpeedRpmSet){
       // line motion
-      motorLeftPID.w = motorLeftSpeedRpmSet - RLdiff/2;
-      motorRightPID.w = motorRightSpeedRpmSet + RLdiff/2;      
+      motorLeftPID.w = (float)motorLeftSpeedRpmSet - RLdiff/2;
+      motorRightPID.w = (float)motorRightSpeedRpmSet + RLdiff/2;      
     }
     motorLeftPID.x = motorLeftRpmCurr;                 // IST     
-    if (currentMillis < stateStartTime + motorZeroSettleTime) motorLeftPID.w = 0; // get zero speed first after state change
+    if ((currentMillis < stateStartTime + motorZeroSettleTime) && (stateCurr != STATE_STATION_REV)) motorLeftPID.w = 0; // get zero speed first after state change
     motorLeftPID.y_min = -motorSpeedMaxPwm;        // Regel-MIN
     motorLeftPID.y_max = motorSpeedMaxPwm;     // Regel-MAX
     motorLeftPID.max_output = motorSpeedMaxPwm;    // Begrenzung
@@ -416,7 +416,7 @@ void Robot::motorControl(){
     motorRightPID.Ki = motorLeftPID.Ki;
     motorRightPID.Kd = motorLeftPID.Kd;          
     motorRightPID.x = motorRightRpmCurr;               // IST
-    if (currentMillis < stateStartTime + motorZeroSettleTime) motorRightPID.w = 0; // get zero speed first after state change
+    if ((currentMillis < stateStartTime + motorZeroSettleTime) && (stateCurr != STATE_STATION_REV)) motorRightPID.w = 0; // get zero speed first after state change
     motorRightPID.y_min = -motorSpeedMaxPwm;       // Regel-MIN
     motorRightPID.y_max = motorSpeedMaxPwm;        // Regel-MAX
     motorRightPID.max_output = motorSpeedMaxPwm;   // Begrenzung

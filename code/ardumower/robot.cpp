@@ -412,7 +412,7 @@ void Robot::readSensors(){
     }
     if ((perimeter.isInside(0) != perimeterInside) && (stateCurr != STATE_STATION) && (stateCurr != STATE_STATION_CHARGING) ){      
       perimeterCounter++;
-      if (perimeterCounter >= 30000) perimeterCounter = 0;
+      //if (perimeterCounter >= 30000) perimeterCounter = 0;
       perimeterLastTransitionTime = currentMillis;
       perimeterInside = perimeter.isInside(0);
     }
@@ -853,6 +853,19 @@ void Robot::checkPerimeterBoundary(){
         }
       }
     } 
+    else if (stateCurr == STATE_REVERSE) {
+      if (perimeterTriggerTime != 0) {
+        if (currentMillis >= perimeterTriggerTime){        
+          perimeterTriggerTime = 0;
+          //if ((rand() % 2) == 0){  
+          if(rotateLeft){  
+          setNextState(STATE_PERI_OUT_FORW, LEFT);
+          } else {
+          setNextState(STATE_PERI_OUT_FORW, RIGHT);
+          }
+        }
+      }
+    } 
     else if ((stateCurr == STATE_ROLL)) {
       if (perimeterTriggerTime != 0) {
         if (currentMillis >= perimeterTriggerTime){ 
@@ -865,6 +878,21 @@ void Robot::checkPerimeterBoundary(){
           } else {
           setNextState(STATE_PERI_OUT_ROLL, LEFT);
           }  
+        }
+      }
+    }
+	else if ((stateCurr == STATE_PERI_OUT_ROLL)) {
+      if (perimeterTriggerTime != 0) {
+        if (currentMillis >= perimeterTriggerTime + 30000){ 
+          perimeterTriggerTime = 0;
+          motorLeftRpmCurr = motorRightRpmCurr = 0 ;
+          setMotorPWM( 0, 0, false );
+          //if ((rand() % 2) == 0){
+          Debug.println("PERI_OUT_ROLL Perimeter not inside");
+          Debug.println("Error: PERI_OUT_ROLL perimeter too far away");
+          addErrorCounter(ERR_PERIMETER_TIMEOUT);
+		      setNextState(STATE_ERROR, 0);
+            
         }
       }
     }
@@ -1099,7 +1127,7 @@ void Robot::setNextState(byte stateNew, byte dir){
   rollDir = dir;
   if (stateNew == STATE_STATION_REV){
     motorLeftSpeedRpmSet = motorRightSpeedRpmSet = -motorSpeedMaxRpm;                    
-    stateEndTime = currentMillis + stationRevTime + motorZeroSettleTime;                     
+    stateEndTime = currentMillis + stationRevTime;                     
 		setActuator(ACT_CHGRELAY, 0);         
   } else if (stateNew == STATE_STATION_ROLL){
     motorLeftSpeedRpmSet = motorSpeedMaxRpm;
@@ -1110,7 +1138,7 @@ void Robot::setNextState(byte stateNew, byte dir){
     motorMowEnable = true;    
     stateEndTime = currentMillis + stationForwTime + motorZeroSettleTime;                     
   } else if (stateNew == STATE_STATION_CHECK){
-    motorLeftSpeedRpmSet = motorRightSpeedRpmSet = -motorSpeedMaxRpm/2; 
+    motorLeftSpeedRpmSet = motorRightSpeedRpmSet = -motorSpeedMaxRpm/3; 
     stateEndTime = currentMillis + stationCheckTime + motorZeroSettleTime; 
 		setActuator(ACT_CHGRELAY, 0);         
     motorMowEnable = false;
@@ -1503,12 +1531,13 @@ void Robot::loop()  {
     case STATE_PERI_OUT_ROLL: 
       if (currentMillis >= stateEndTime){
         if (perimeterInside) setNextState(STATE_FORWARD,rollDir);  
-        //else {
+        else {
+			checkPerimeterBoundary();
           //Debug.println("PERI_OUT_ROLL Perimeter not inside");
-          //Debug.println("Error: perimeter too far away");
+          //Debug.println("Error: PERI_OUT_ROLL perimeter too far away");
           //addErrorCounter(ERR_PERIMETER_TIMEOUT);
-					//setNextState(STATE_ERROR, 0);
-        //}
+		  //setNextState(STATE_ERROR, 0);
+        }
       }
       break;
 
