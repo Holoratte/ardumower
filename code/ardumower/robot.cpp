@@ -970,16 +970,19 @@ void Robot::checkSonar(){
 	 if (sonarTriggerBelow != 0){
 		if ((sonarDistCenter != NO_ECHO) && (sonarDistCenter < sonarTriggerBelow)) {
 			sonarDistCounter++;   
-			if (rollDir == RIGHT) reverseOrBidir(LEFT); // toggle roll dir
-				else reverseOrBidir(RIGHT);    
+			if (rollDir == RIGHT) if (not(bumperLeft || bumperRight))reverseOrBidir(LEFT); // toggle roll dir
+				else if (not(bumperLeft || bumperRight))reverseOrBidir(RIGHT);    
+    nextTimeCheckSonar = currentMillis + 5000;
 		}
-		if ((sonarDistRight != NO_ECHO) && (sonarDistRight < sonarTriggerBelow)){
+		else if ((sonarDistRight != NO_ECHO) && (sonarDistRight < sonarTriggerBelow)){
 			sonarDistCounter++;
-			reverseOrBidir(LEFT);
+			if (not(bumperLeft || bumperRight))reverseOrBidir(LEFT);
+      nextTimeCheckSonar = currentMillis + 5000;
 		}
-		if ((sonarDistLeft != NO_ECHO) && (sonarDistLeft < sonarTriggerBelow)){
+		else if ((sonarDistLeft != NO_ECHO) && (sonarDistLeft < sonarTriggerBelow)){
 			sonarDistCounter++; 
-			reverseOrBidir(RIGHT);
+			if (not(bumperLeft || bumperRight))reverseOrBidir(RIGHT);
+      nextTimeCheckSonar = currentMillis + 5000;
 		}
 	}
 }
