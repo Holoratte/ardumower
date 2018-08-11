@@ -970,19 +970,19 @@ void Robot::checkSonar(){
 	 if (sonarTriggerBelow != 0){
 		if ((sonarDistCenter != NO_ECHO) && (sonarDistCenter < sonarTriggerBelow)) {
 			sonarDistCounter++;   
-			if (rollDir == RIGHT) if (not(bumperLeft || bumperRight))reverseOrBidir(LEFT); // toggle roll dir
-				else if (not(bumperLeft || bumperRight))reverseOrBidir(RIGHT);    
-    nextTimeCheckSonar = currentMillis + 5000;
+			if ((rollDir == RIGHT) && (not(bumperLeft || bumperRight)) && (motorLeftSense <=motorPowerMax))reverseOrBidir(LEFT); // toggle roll dir
+				else if (not(bumperLeft || bumperRight) && (motorLeftSense <=motorPowerMax))reverseOrBidir(RIGHT);    
+    nextTimeCheckSonar = currentMillis + 1000;
 		}
 		else if ((sonarDistRight != NO_ECHO) && (sonarDistRight < sonarTriggerBelow)){
 			sonarDistCounter++;
-			if (not(bumperLeft || bumperRight))reverseOrBidir(LEFT);
-      nextTimeCheckSonar = currentMillis + 5000;
+			if (not(bumperLeft || bumperRight) && (motorLeftSense <=motorPowerMax))reverseOrBidir(LEFT);
+      nextTimeCheckSonar = currentMillis + 1000;
 		}
 		else if ((sonarDistLeft != NO_ECHO) && (sonarDistLeft < sonarTriggerBelow)){
 			sonarDistCounter++; 
-			if (not(bumperLeft || bumperRight))reverseOrBidir(RIGHT);
-      nextTimeCheckSonar = currentMillis + 5000;
+			if (not(bumperLeft || bumperRight) && (motorLeftSense <=motorPowerMax))reverseOrBidir(RIGHT);
+      nextTimeCheckSonar = currentMillis + 1000;
 		}
 	}
 }
