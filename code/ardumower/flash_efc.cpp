@@ -919,4 +919,3 @@ uint32_t flash_erase_user_signature(void)
 /// @endcond
 
 #endif  // #ifndef __AVR__
-

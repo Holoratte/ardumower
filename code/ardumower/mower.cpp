@@ -159,7 +159,8 @@ Mower::Mower(){
     #ifdef __AVR__         // Mega
 			batFactor                = 0.494;      // voltage = ADC * batFactor / 10     
       batChgFactor             = 0.494;      // voltage = ADC * batFactor / 10  
-			chgFactor                = 0.045;         // INA169 charge current conversion factor  Ampere = ADC * chgFactor / 10
+
+			chgFactor                = 0.045;         // INA169 charge current conversion factor  Ampere = ADC * chgFactor / 10
     #else                  // Due
       //batFactor                = 0.3267;      // voltage = ADC * batFactor / 10   
       //batChgFactor             = 0.3267;      // voltage = ADC * batFactor / 10
@@ -693,5 +694,3 @@ void Mower::configureBluetooth(boolean quick){
   BluetoothConfig bt;
   bt.setParams(name, BLUETOOTH_PIN, BLUETOOTH_BAUDRATE, quick);
 }
-
-

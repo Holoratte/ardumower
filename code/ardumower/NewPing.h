@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // NewPing Library - v1.8 - 07/30/2016
-//
+// 
 // AUTHOR/LICENSE:
 // Created by Tim Eckel - teckel@leethost.com
 // Copyright 2016 License: GNU GPL v3 http://www.gnu.org/licenses/gpl.html

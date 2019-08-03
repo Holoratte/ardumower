@@ -373,7 +373,7 @@ class Robot
     int perimeterTrackRevTime ; // perimeter tracking reverse time (ms)
     PID perimeterPID ;             // perimeter PID controller
     int perimeterMag ;             // perimeter magnitude
-    RunningMedian perimeterMagMedian = RunningMedian(300);
+    RunningMedian perimeterMagMedian = RunningMedian(35);
     RunningMedian perimeterMagMedianInside = RunningMedian(7); //for trackInsideOnly
     int perimeterMagMax; // Maximum perimeterMag
     int MaxSpeedperiPwm; // perimeter tracking max PWM
@@ -625,5 +625,3 @@ protected:
 
 
 #endif
-
-

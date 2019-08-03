@@ -47,4 +47,3 @@ void Robot::checkBattery(){
 		}
 	}
 }
-

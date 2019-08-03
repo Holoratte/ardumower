@@ -35,7 +35,7 @@
 // odd size results in a 'real' middle element.
 // even size takes the lower of the two middle elements
 #define MEDIAN_MIN_SIZE     1
-#define MEDIAN_MAX_SIZE     19          // adjust if needed
+#define MEDIAN_MAX_SIZE     35          // adjust if needed
 
 
 class RunningMedian

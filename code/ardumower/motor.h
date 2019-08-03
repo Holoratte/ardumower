@@ -223,7 +223,7 @@ void Robot::motorControlImuRoll(){
 // PID controller: track perimeter 
 void Robot::motorControlPerimeter(){    
   if (currentMillis < nextTimeMotorPerimeterControl) return;
-    nextTimeMotorPerimeterControl = currentMillis + 30;
+  nextTimeMotorPerimeterControl = currentMillis + 30;
   if (trackInsidePerimeterOnly){
     if (perimeterInside){
       perimeterPID.x = (double(perimeterMagMedianInside.getMedian())/double(perimeterMagMax)); 
@@ -239,7 +239,9 @@ void Robot::motorControlPerimeter(){
     else{      //!perimeterInside tracking same as line following
       perimeterPID.x = 5*(double(perimeterMagMedianInside.getMedian())/double(perimeterMagMax));
       perimeterPID.w = 1;
-      if (lastPerimeterTrackInside) perimeterPID.reset();
+      if (lastPerimeterTrackInside) {
+		perimeterPID.reset();
+	  }
       lastPerimeterTrackInside = 0;
       perimeterPID.y_min = -MaxSpeedperiPwm;
       perimeterPID.y_max = MaxSpeedperiPwm;    
@@ -256,12 +258,19 @@ void Robot::motorControlPerimeter(){
   if ((currentMillis > stateStartTime + 5000) && (currentMillis > perimeterLastTransitionTime + trackingPerimeterTransitionTimeOut)){
     // robot is wheel-spinning while tracking => roll to get ground again
     if (trackingBlockInnerWheelWhilePerimeterStruggling == 0){
-    if (perimeterInside) setMotorPWM( -MaxSpeedperiPwm/2, MaxSpeedperiPwm/2, false);
-        else setMotorPWM( MaxSpeedperiPwm/2, -MaxSpeedperiPwm/2, false);}
-
+      if (perimeterInside) {
+		  setMotorPWM( -MaxSpeedperiPwm/2, MaxSpeedperiPwm/2, false);
+	  }
+        else {
+			setMotorPWM( MaxSpeedperiPwm/2, -MaxSpeedperiPwm/2, false);}
+	    }
     else if (trackingBlockInnerWheelWhilePerimeterStruggling == 1){
-      if (perimeterInside) setMotorPWM( MaxSpeedperiPwm/6, MaxSpeedperiPwm/2, false);
-        else setMotorPWM( MaxSpeedperiPwm/2, MaxSpeedperiPwm/6, false);
+      if (perimeterInside) {
+		setMotorPWM( MaxSpeedperiPwm/6, MaxSpeedperiPwm/2, false);
+	  }
+        else {
+	      setMotorPWM( MaxSpeedperiPwm/2, MaxSpeedperiPwm/6, false);
+		}
     }
 
     if (currentMillis > perimeterLastTransitionTime + trackingErrorTimeOut){      
@@ -275,12 +284,16 @@ void Robot::motorControlPerimeter(){
   perimeterPID.x = 5*((double(perimeterMag)/double(perimeterMagMedian.getHighest())));
   if (perimeterInside){
       perimeterPID.w = -trackMagSetpoint;
-      if (!lastPerimeterTrackInside) perimeterPID.reset();
+      if (!lastPerimeterTrackInside) {
+		perimeterPID.reset();
+	  }  
       lastPerimeterTrackInside = 1;
   }
     else{
       perimeterPID.w = trackMagSetpoint;
-      if (lastPerimeterTrackInside) perimeterPID.reset();
+      if (lastPerimeterTrackInside) {
+		perimeterPID.reset();
+	  }
       lastPerimeterTrackInside = 0;
     }
   //if (perimeterPID.x > 1) perimeterPID.x = 1;
@@ -401,7 +414,9 @@ void Robot::motorControl(){
       motorRightPID.w = (float)motorRightSpeedRpmSet + RLdiff/2;      
     }
     motorLeftPID.x = motorLeftRpmCurr;                 // IST     
-    if ((currentMillis < stateStartTime + motorZeroSettleTime) && (stateCurr != STATE_STATION_REV)) motorLeftPID.w = 0; // get zero speed first after state change
+    if ((currentMillis < stateStartTime + motorZeroSettleTime) && (stateCurr != STATE_STATION_REV)) {
+      motorLeftPID.w = 0; // get zero speed first after state change
+    }
     motorLeftPID.y_min = -motorSpeedMaxPwm;        // Regel-MIN
     motorLeftPID.y_max = motorSpeedMaxPwm;     // Regel-MAX
     motorLeftPID.max_output = motorSpeedMaxPwm;    // Begrenzung
@@ -426,8 +441,12 @@ void Robot::motorControl(){
     //if((motorRightSpeedRpmSet >= 0 ) && (rightSpeed <0 )) rightSpeed = 0;
     //if((motorRightSpeedRpmSet <= 0 ) && (rightSpeed >0 )) rightSpeed = 0;         
 
-    if ( (abs(motorLeftPID.x) < 2) && (abs(motorLeftPID.w) < 0.1) ) leftSpeed = 0; // ensures PWM is really zero 
-    if ( (abs(motorRightPID.x)  < 2) && (abs(motorRightPID.w) < 0.1) ) rightSpeed = 0; // ensures PWM is really zero     
+    if ( (abs(motorLeftPID.x) < 2) && (abs(motorLeftPID.w) < 0.1) ) {
+      leftSpeed = 0; // ensures PWM is really zero 
+    }
+    if ( (abs(motorRightPID.x)  < 2) && (abs(motorRightPID.w) < 0.1) ) {
+      rightSpeed = 0; // ensures PWM is really zero     
+    }
 
     /*if (currentMillis >= nextMotorControlOutputTime){
       nextMotorControlOutputTime = currentMillis + 3000; 
@@ -448,7 +467,9 @@ void Robot::motorControl(){
     int rightSpeed =min(motorSpeedMaxPwm, max(-motorSpeedMaxPwm, map(motorRightSpeedRpmSet, -motorSpeedMaxRpm, motorSpeedMaxRpm, -motorSpeedMaxPwm, motorSpeedMaxPwm)));
     if (currentMillis < stateStartTime + motorZeroSettleTime) {
       leftSpeed = rightSpeed = 0; // slow down at state start      
-      if (mowPatternCurr != MOW_LANES) imuDriveHeading = imu.ypr.yaw; // set drive heading    
+      if (mowPatternCurr != MOW_LANES) {
+        imuDriveHeading = imu.ypr.yaw; // set drive heading    
+      }
     }
     setMotorPWM( leftSpeed, rightSpeed, true ); 
   }  
@@ -462,7 +483,9 @@ void Robot::motorMowControl(){
   if (currentMillis < nextTimeMotorMowControl) return;
 
     nextTimeMotorMowControl = currentMillis + 100;
-    if (motorMowEnableOverride) motorMowEnable = false;
+    if (motorMowEnableOverride) {
+      motorMowEnable = false;
+    }
   double mowSpeed ;
   if (!motorMowEnable) {
     mowSpeed = 0;         
@@ -480,10 +503,14 @@ void Robot::motorMowControl(){
       if (mowSpeed <motorMowRPMSet ){
 
         mowSpeed = lastMowSpeedPWM + 200;
-        if (mowSpeed >motorMowRPMSet) mowSpeed = motorMowRPMSet;
+        if (mowSpeed >motorMowRPMSet) {
+          mowSpeed = motorMowRPMSet;
+        }
       } else if (mowSpeed >motorMowRPMSet ){
         mowSpeed = lastMowSpeedPWM - 200;
-        if (mowSpeed <motorMowRPMSet) mowSpeed = motorMowRPMSet;
+        if (mowSpeed <motorMowRPMSet) {
+          mowSpeed = motorMowRPMSet;
+        }
       }
 
       motorMowPID.x = 0.2* motorMowRpmCurr + 0.8 * motorMowPID.x;      
@@ -512,12 +539,5 @@ void Robot::printOdometry(){
   Console.print(F("ODO,"));
   Console.print(odometryX);
   Console.print(",");
-  Console.println(odometryY);  
-  Console.print(F("ODO,"));
-  Console.print(odometryX);
-  Console.print(",");
-  Console.println(odometryY);  
-}
-
-
-
+  Console.println(odometryY);
+  }

@@ -131,6 +131,3 @@ boolean setDS1307(datetime_t &dt);
 int getDayOfWeek(int month, int day, int year, int CalendarSystem);
 
 #endif 
-
-
-

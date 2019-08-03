@@ -158,5 +158,3 @@ class RemoteControl
 
 
 #endif
-
-

@@ -153,5 +153,3 @@ uint32_t flash_erase_user_signature(void);
 #endif /* FLASH_H_INCLUDED */
 
 #endif // #ifndef __AVR__
-
-
